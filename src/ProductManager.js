@@ -1,5 +1,4 @@
 import fs from 'fs'
-const dbDir = './MyDB.json'
 
 class ProductManager {
     constructor() {

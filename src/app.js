@@ -24,8 +24,6 @@ app.get('/products/:pid', async(req,res) => {
     try {
         const productId = parseInt(req.params.pid)
 
-        console.log(productId)
-
         const product = await ProductManager.getProductById(productId)
 
         if (!product) return res.send({ error: `the product you are requesting does not exist` })
