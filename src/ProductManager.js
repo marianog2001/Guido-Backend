@@ -1,10 +1,9 @@
-const { log } = require('console')
-const fs = require('fs')
+import fs from 'fs'
 const dbDir = './MyDB.json'
 
 class ProductManager {
-    constructor(dbDir) {
-        this.path = dbDir
+    constructor() {
+        this.path = './src/MyDB.json'
         this.format = 'utf-8'
     }
 
@@ -78,7 +77,7 @@ class ProductManager {
     getProductById = async (id) => {
         let products = await this.getProducts()
         let product = products.find((product) => product.id === id)
-        if (product) { return console.table(product) }
+        if (product) { return product }
         else { return console.log('there are no products matching that id') }
     }
 
@@ -115,36 +114,6 @@ class ProductManager {
 
 }
 
-const pManager = new ProductManager(dbDir)
+export default ProductManager = new ProductManager()
 
 
-async function run() {
-
-    await pManager.addProducts(
-        'prueba 1',
-        'desc p 1 ',
-        10,
-        'prueba.jpeg',
-        'aab',
-        100
-    )
-
-    await pManager.addProducts(
-        'segundo',
-        'desc 2',
-        20,
-        'test.webp',
-        'qwe',
-        200
-    )
-
-    await pManager.updateProduct(1,{title:'wopa',code:'PPPPPP'})
-
-
-}
-
-run()
-
-
-
-/* await pManager.updateProduct(1,{title:'pruebaza',precio:'9999'}) */
