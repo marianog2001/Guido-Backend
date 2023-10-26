@@ -21,20 +21,20 @@ class ProductManager {
 
     getProducts = async () => {
         if (!fs.existsSync(this.path)) { return [] } else {
-            if (await this.isFileEmpty()) {return []} else {
+            if (await this.isFileEmpty()) { return [] } else {
                 return fs.promises.readFile(this.path, this.format)
-                .then(response => JSON.parse(response))
-                .catch(e => {
-                    console.log('this error appeared! : ' + e)
-                    return []
-                })
-            }            
+                    .then(response => JSON.parse(response))
+                    .catch(e => {
+                        console.log('this error appeared! : ' + e)
+                        return []
+                    })
+            }
         }
     }
 
     /* -------------------------------------------------------------------------------------------- */
 
-    addProducts = async (title, desc, price, thumbnail, code, stock) => {
+    addProducts = async (title, desc, price, thumbnail, code, category, stock) => {
 
         const products = await this.getProducts()
 
@@ -46,27 +46,36 @@ class ProductManager {
             return console.log("there already is a product with the same code in the list.")
         }
 
+        if (Object.values({title:title,desc:desc,price:price,code:code,category:category,stock:stock}).includes(undefined)) {
+            return console.error('falta algun dato')
+        }
+
+        if (!thumbnail) {
+            thumbnail = []
+        } else if (!Array.isArray(thumbnail)) {
+            thumbnail = [thumbnail]
+        }
+
         const product = {
             title: title,
             desc: desc,
             price: price,
             thumbnail: thumbnail,
             code: code,
+            category: category,
             stock: stock,
-            id: products.length + 1
-        }
-
-        if (Object.values(product).includes(undefined)) {
-            return console.log('The product has fields in blank!!!!')
+            status: true,
+            id: products[products.length - 1].id + 1
         }
 
         products.push(product)
 
         try {
             await fs.promises.writeFile(this.path, JSON.stringify(products))
+            return products
         }
         catch {
-            console.log(error)
+            console.log('ha habido un error')
         }
 
     }
@@ -82,29 +91,31 @@ class ProductManager {
 
     /* -------------------------------------------------------------------------------------------- */
 
-    deleteProduct = async (id) => {
+    deleteProduct = async (id,res) => {
         let products = await this.getProducts()
         let newProducts = products.filter(product => product.id !== id)
-        newProducts.forEach((product, index) => { product.id = index+1 })
         fs.promises.writeFile(this.path, JSON.stringify(newProducts))
+        res.status(200).json({message:'product deleted'})
     }
 
     /* -------------------------------------------------------------------------------------------- */
 
-    updateProduct = async (id, updates) => {
+    updateProduct = async (id, updates, res) => {
+
         let products = await this.getProducts()
         let product = products.find(product => product.id === id)
-        if (!product) { return console.log('product id not found') }
+        if (!product) { return res.status(400).json({message:'product not found'}) }
         else {
             product.title = updates.title ? updates.title : product.title
             product.desc = updates.desc ? updates.desc : product.desc
             product.price = updates.price ? updates.price : product.price
             product.thumbnail = updates.thumbnail ? updates.thumbnail : product.thumbnail
             product.code = updates.code ? updates.code : product.code
+            product.category = updates.category ? updates.category : product.category
             product.stock = updates.stock ? updates.stock : product.stock
+            product.status = updates.status ? updates.status : product.status
 
-            console.log('UPDATED')
-            console.table(product)
+            res.status(200).json({product})
 
             await fs.promises.writeFile(this.path, JSON.stringify(products))
         }

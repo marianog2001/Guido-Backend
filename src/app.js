@@ -1,39 +1,34 @@
 import express from 'express'
-import ProductManager from './ProductManager.js'
+import productRouter from "./api/products.router.js"
+import cartRouter from "./api/cart.router.js"
+
 
 const app = express()
 
-app.get('/products', async(req, res) => {
-    try {
-        const limit = req.query.limit 
+app.use(express.json())
 
-        const products = await ProductManager.getProducts()
 
-        if (!limit) res.send( products )
-        else {
-            const productsLimit = products.slice(0, limit)
-            res.json( productsLimit )
-        }
-    } catch (err) {
-        res.send('an error has occurred')
-        console.log(err)
-    }
-})
+app.use('/static', express.static('./src/public'))
 
-app.get('/products/:pid', async(req,res) => {
-    try {
-        const productId = parseInt(req.params.pid)
+app.get('/', (req,res) => {res.send('HERE IS HOME')})
 
-        const product = await ProductManager.getProductById(productId)
+app.use("/api/products",productRouter)
 
-        if (!product) return res.send({ error: `the product you are requesting does not exist` })
-        res.send( product )
-    } catch (err) {
-        res.send('an error has occurred')
-    }
-})
-
+app.use("/api/carts",cartRouter)
 
 app.listen(8080, () => {
     console.log('server running');
 })
+
+
+
+// multer config
+/* const storage = multer.diskStorage({
+    destination: function(req,file,cb) {
+        cb(null,'./src/public')
+    },
+    filename: function(req,file,cb) {
+        cb(null, file.originalName + '_' + new Date().getTime() )
+    }
+})
+const uploader = multer({storage}) */
