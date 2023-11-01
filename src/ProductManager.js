@@ -92,10 +92,14 @@ class ProductManager {
     /* -------------------------------------------------------------------------------------------- */
 
     deleteProduct = async (id,res) => {
-        let products = await this.getProducts()
-        let newProducts = products.filter(product => product.id !== id)
-        fs.promises.writeFile(this.path, JSON.stringify(newProducts))
-        res.status(200).json({message:'product deleted'})
+        try{
+            let products = await this.getProducts()
+            let newProducts = await products.filter(product => product.id !== id)
+            await fs.promises.writeFile(this.path, JSON.stringify(newProducts))
+            res.status(200).json({message:'product deleted'})
+        }
+        catch(err) {console.error(err)}
+        
     }
 
     /* -------------------------------------------------------------------------------------------- */

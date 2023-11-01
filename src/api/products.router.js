@@ -37,8 +37,9 @@ router.post('/', async(req,res) => {
     try {
 
         let { title, desc, price, thumbnail, code, category, stock, status } = req.body
-
         let newProduct = await ProductManager.addProducts(title, desc, price, thumbnail, code, category, stock, status)
+        let updatedProducts = await ProductManager.getProducts()
+        req.app.get('socketio').emit('productsUpdate',updatedProducts)
         res.status(200).json(newProduct)
     }
 
@@ -52,7 +53,8 @@ router.put('/:pid', async(req,res) => {
     try {
         let id = parseInt(req.params.pid)
         let {updates} = req.body
-
+        let updatedProducts = await ProductManager.getProducts()
+        req.app.get('socketio').emit('productsUpdate',updatedProducts)
         ProductManager.updateProduct(id,updates,res)
     }
     catch{
@@ -63,10 +65,10 @@ router.put('/:pid', async(req,res) => {
 
 router.delete('/:pid', async(req,res) => {
     try {
-        let id = req.params.pid
-
-        ProductManager.deleteProduct(id,res)
-
+        let id = parseInt(req.params.pid)        
+        await ProductManager.deleteProduct(id,res)
+        let updatedProducts = await ProductManager.getProducts()
+        req.app.get('socketio').emit('productsUpdate',updatedProducts)
     }
     catch{
         console.log(error)
