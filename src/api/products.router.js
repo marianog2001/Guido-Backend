@@ -1,78 +1,87 @@
 import { Router } from "express"
-import ProductManager from "../ProductManager.js"
+import productModel from "../DAO/models/products.models.js"
 
 const router = Router()
 
-router.get('/', async(req,res) => {
+router.get('/', async (req, res) => {
     try {
-        const limit = req.query.limit 
+        const products = await productModel.find().lean().exec()
 
-        const products = await ProductManager.getProducts()
+        res.json({ status: 'success', payload: products })
+    }
+    catch (e) {
+        res.send('an error ocurred:' + e)
+    }
+}
+)
 
-        if (!limit) res.send( products )
-        else {
-            const productsLimit = products.slice(0, limit)
-            res.json( productsLimit )
-        }
+
+router.get('/:pid', async (req, res) => {
+    try {
+        const products = await productModel.findOne({ id: req.params.pid }).lean().exec()
+
+        res.json({ status: 'success', payload: products })
     } catch (err) {
-        res.send('an error has occurred')
-        console.log(err)
+        res.send('an error has occurred:' + err)
     }
 })
 
-router.get('/:pid', async(req,res) => {
+
+router.post('/', async (req, res) => {
     try {
-        const productId = parseInt(req.params.pid)
-
-        const product = await ProductManager.getProductById(productId)
-
-        if (!product) return res.send({ error: `the product you are requesting does not exist` })
-        res.send( product )
-    } catch (err) {
-        res.send('an error has occurred')
-    }
-})
-
-router.post('/', async(req,res) => {
-    try {
-
-        let { title, desc, price, thumbnail, code, category, stock, status } = req.body
-        let newProduct = await ProductManager.addProducts(title, desc, price, thumbnail, code, category, stock, status)
-        let updatedProducts = await ProductManager.getProducts()
-        req.app.get('socketio').emit('productsUpdate',updatedProducts)
-        res.status(200).json(newProduct)
+        const newProduct = req.body
+        const result = await productModel.create(newProduct)
+        const updatedProducts = await productModel.find().lean().exec()
+        req.app.get('socketio').emit('productsUpdate', updatedProducts)
+        res.status(200).json(result)
     }
 
-    catch (error){
+    catch (error) {
         console.log(error)
-        return res.status(400).json({message:error})
+        return res.status(400).json({ message: error })
     }
 })
 
-router.put('/:pid', async(req,res) => {
+router.put('/:pid', async (req, res) => {
+    try {
+        const pid = req.params.pid
+        if (req.body.id !== pid && req.body.id !== undefined) {
+            return res.status(404).json({ error: 'cant modify products id' })
+        }
+        const updated = req.body
+        const productToUpdate = await productModel.findById(pid)
+        if (!productToUpdate) {
+            return res.status(404).json({ error: 'no product matches that id' })
+        }
+        await productModel.updateOne({ _id: pid }, updated)
+        const updatedProducts = await productModel.find().lean().exec()
+        req.app.get('socketio').emit('productsUpdate', updatedProducts)
+        res.status(200).json({ message:`updating product` })
+    } catch (e) {
+        console.error(e)
+        res.status(500).json({ message: error })
+        /* try {
+            let id = parseInt(req.params.pid)
+            let { updates } = req.body
+            let updatedProducts = await ProductManager.getProducts()
+            req.app.get('socketio').emit('productsUpdate', updatedProducts)
+            ProductManager.updateProduct(id, updates, res)
+        }
+        catch {
+            console.log(error)
+            return res.status(400).json({ message: error })
+        } */
+    }
+})
+
+router.delete('/:pid', async (req, res) => {
     try {
         let id = parseInt(req.params.pid)
-        let {updates} = req.body
-        let updatedProducts = await ProductManager.getProducts()
-        req.app.get('socketio').emit('productsUpdate',updatedProducts)
-        ProductManager.updateProduct(id,updates,res)
+        await productModel.deleteOne({ id: id })
     }
-    catch{
-        console.log(error)
-        return res.status(400).json({message:error})
-    }
-})
-
-router.delete('/:pid', async(req,res) => {
-    try {
-        let id = parseInt(req.params.pid)        
-        await ProductManager.deleteProduct(id,res)
-        let updatedProducts = await ProductManager.getProducts()
-        req.app.get('socketio').emit('productsUpdate',updatedProducts)
-    }
-    catch{
-        console.log(error)
-        return res.status(400).json({message:error})
+    catch (e) {
+        console.error(e)
+        return res.status(500).json({ message: error })
     }
 })
 

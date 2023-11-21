@@ -1,1 +1,41 @@
-[{"title":"guitarra criolla","desc":"guitarra criolla clasica de abeto y caoba","price":50,"thumbnail":["guitarra-criolla_1.jpeg"],"code":"gca","category":"acoustic guitar","stock":100,"status":true,"id":1},{"title":"guitarra electrica stratocaster","desc":"guitarra electrica fender stratocaster","price":20,"thumbnail":["guitarra-electrica_1.webp"],"code":"gef","category":"electric guitar","stock":200,"status":true,"id":2},{"title":"guitarra electrica les paul","desc":"guitarra electrica gibson les paul","price":10,"thumbnail":["guitarra-electrica_3.jpeg"],"code":"geg","category":"electric guitar","stock":100,"status":true,"id":3}]
+[
+    {
+        "title": "guitarra criolla",
+        "desc": "guitarra criolla clasica de abeto y caoba",
+        "price": 50,
+        "thumbnail": [
+            "guitarra-criolla_1.jpeg"
+        ],
+        "code": "gca",
+        "category": "acoustic guitar",
+        "stock": 100,
+        "status": true,
+        "id": 1
+    },
+    {
+        "title": "guitarra electrica stratocaster",
+        "desc": "guitarra electrica fender stratocaster",
+        "price": 20,
+        "thumbnail": [
+            "guitarra-electrica_1.webp"
+        ],
+        "code": "gef",
+        "category": "electric guitar",
+        "stock": 200,
+        "status": true,
+        "id": 2
+    },
+    {
+        "title": "guitarra electrica les paul",
+        "desc": "guitarra electrica gibson les paul",
+        "price": 10,
+        "thumbnail": [
+            "guitarra-electrica_3.jpeg"
+        ],
+        "code": "geg",
+        "category": "electric guitar",
+        "stock": 100,
+        "status": true,
+        "id": 3
+    }
+]

@@ -6,14 +6,51 @@ import handlebars from 'express-handlebars'
 import viewsRouter from "./api/views.router.js"
 import __dirname from './utils.js'
 import { Server } from 'socket.io'
+import mongoose from 'mongoose'
+import chatRouter from './api/chat.router.js'
+import messageModel from './DAO/models/message.model.js'
 
 const app = express()
 
 
-const httpServer = app.listen(8080, () => { console.log('server running') })
-const socketServer = new Server(httpServer)
+const url = "mongodb+srv://marianog2001:6pvmodo6doiRze65@cluster0.3wxdcut.mongodb.net/"
+mongoose.connect(url, { dbName: 'ecommerce' })
+    .then(() => {
+        console.log('db connected succesfully')
+        const httpServer = app.listen(8080, () => { console.log('server running') })
 
-app.set('socketio', socketServer);
+
+        const socketServer = new Server(httpServer)
+        app.set('socketio', socketServer);
+
+        socketServer.on('connection', async socket => {
+            console.log('New client connected')
+            
+            socket.on('message', data => {
+                console.log(data)
+            })
+
+            let messages = ( await messageModel.find()) ? await messageModel.find() : []
+
+            socket.broadcast.emit('alerta')
+            socket.emit('logs', messages)
+            socket.on('message', data => {
+                messages.push(data)
+                messageModel.create(messages)
+                io.emit('logs', messages)
+            })
+        })
+
+    }
+    )
+    .catch(
+        (e) => {
+            console.error('db failed to connect:' + e)
+        }
+    )
+
+
+
 app.use(express.json())
 app.use('/static', express.static('./src/public'))
 
@@ -33,25 +70,12 @@ app.set('views', './src/views') //Indicamos donde estan las vistas
 app.set('view engine', 'handlebars') //Indicamos motor que usarán las vistas
 
 
-
-
-
-
 app.use('/', viewsRouter)
 
 app.use("/api/products", productRouter)
 
 app.use("/api/carts", cartRouter)
 
+app.use("/chat", chatRouter)
 
-
-
-
-socketServer.on('connection', socket => {
-    console.log('New client connected')
-
-    socket.on('message', data => {
-        console.log(data)
-    })
-})
 
