@@ -5,12 +5,81 @@ const router = Router()
 
 router.get('/', async (req, res) => {
     try {
-        const products = await productModel.find().lean().exec()
+        let limit = parseInt(req.query?.limit ?? 10)
+        let page = parseInt(req.query?.page ?? 1)
+        let searchQuery = req.query?.search ?? null
+        let sortQuery = parseInt(req.query?.sort) ?? null
+        let catQuery = (req.query?.cat) ?? null
+        let stockQuery = (req.query?.stock === 'true') ?? null
+        let query = {}
 
-        res.json({ status: 'success', payload: products })
+        let options = {
+            limit,page,lean:true,
+        }
+        if (catQuery) {query.category = catQuery.replace(/_/g,' ')}
+        if (searchQuery) {query.$text = {$search:searchQuery}} //añade $text a la query si es distinto de null
+        if (sortQuery) {
+            options.sort = {price:sortQuery}
+        }
+        console.log(stockQuery)
+        if (stockQuery) 
+            {query.stock = { $gt: 0}}
+        
+        const result = await productModel.paginate(query,options)
+        
+        
+        return res.status(200).render('products',result)
+        
+        /*  if (searchQuery) {
+            const searchResult = await productModel
+            .paginate(
+                {$text:{$search:searchQuery}}, {
+                limit,
+                page,
+                lean: true,
+            });
+            
+            console.log(searchResult)
+            return res.status(200).render('products', searchResult)
+
+        } else {
+            const result = await productModel.paginate({}, {
+                    page,
+                    limit,
+                    lean: true // pasar de bson a json para poder mostrar por handlebars
+                })
+
+            console.log(result)
+            return res.status(200).render('products', result)
+        } */
+        
     }
     catch (e) {
-        res.send('an error ocurred:' + e)
+        return res.send('an error ocurred:' + e)
+    }
+}
+)
+
+router.get('/search/:query', async (req, res) => {
+    try {
+        let limit = parseInt(req.query?.limit ?? 10)
+        let page = parseInt(req.query?.page ?? 1)
+        let searchQuery = req.params.query
+        console.log(searchQuery)
+        const searchResult = await productModel
+            .paginate(
+                {$text:{$search:searchQuery}}, {
+                limit,
+                page,
+                lean: true,
+            });
+
+            
+        console.log(searchResult)
+        return res.status(200).render('products', searchResult)
+    }
+    catch (e) {
+        return res.send('an error ocurred:' + e)
     }
 }
 )
@@ -18,9 +87,8 @@ router.get('/', async (req, res) => {
 
 router.get('/:pid', async (req, res) => {
     try {
-        const products = await productModel.findOne({ id: req.params.pid }).lean().exec()
-
-        res.json({ status: 'success', payload: products })
+        const product = await productModel.findOne({ _id: req.params.pid }).lean().exec()
+        return res.status(200).render('productDetail',product)
     } catch (err) {
         res.send('an error has occurred:' + err)
     }
@@ -30,10 +98,11 @@ router.get('/:pid', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const newProduct = req.body
+        console.log(newProduct)
         const result = await productModel.create(newProduct)
         const updatedProducts = await productModel.find().lean().exec()
-        req.app.get('socketio').emit('productsUpdate', updatedProducts)
-        res.status(200).json(result)
+        req.app.get('socketio').emit('productsUpdate')
+        return res.status(200).json(result)
     }
 
     catch (error) {
@@ -56,7 +125,7 @@ router.put('/:pid', async (req, res) => {
         await productModel.updateOne({ _id: pid }, updated)
         const updatedProducts = await productModel.find().lean().exec()
         req.app.get('socketio').emit('productsUpdate', updatedProducts)
-        res.status(200).json({ message:`updating product` })
+        res.status(200).json({ message: `updating product` })
     } catch (e) {
         console.error(e)
         res.status(500).json({ message: error })

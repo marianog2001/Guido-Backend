@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <h2>{{title}}</h2>
+        {{!-- recordar cambiar esta clase cuando prenda el tailwind --}}
+        <img class="h-[405px]" src="{{this.thumbnail}}" alt="">
+        <div>
+            <h3>PRICE: {{this.price}} <a href="" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">ADD TO CART!</a></h3>
+        </div>
+        <div>
+            <h3>INFO</h3>
+            <h4>Description of the item: <span>{{this.desc}}</span></h4>
+            <h4>Category: <span>{{this.category}}</span></h4>
+            <h4>Code: <span>{{this.code}}</span></h4>
+            <h4>Stock remaining: <span>{{this.stock}}</span></h4>
+            <h4>Code: {{this.code}}</h4>
+        </div>
+    </div>
+    
+</body>
+    <script src="/static/js/productDetail.js"></script>
+</html>
