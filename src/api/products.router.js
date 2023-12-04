@@ -14,22 +14,21 @@ router.get('/', async (req, res) => {
         let query = {}
 
         let options = {
-            limit,page,lean:true,
+            limit, page, lean: true,
         }
-        if (catQuery) {query.category = catQuery.replace(/_/g,' ')}
-        if (searchQuery) {query.$text = {$search:searchQuery}} //añade $text a la query si es distinto de null
+        if (catQuery) { query.category = catQuery.replace(/_/g, ' ') }
+        if (searchQuery) { query.$text = { $search: searchQuery } } //añade $text a la query si es distinto de null
         if (sortQuery) {
-            options.sort = {price:sortQuery}
+            options.sort = { price: sortQuery }
         }
-        console.log(stockQuery)
-        if (stockQuery) 
-            {query.stock = { $gt: 0}}
-        
-        const result = await productModel.paginate(query,options)
-        
-        
-        return res.status(200).render('products',result)
-        
+        if (stockQuery) { query.stock = { $gt: 0 } }
+
+        const result = await productModel.paginate(query, options)
+
+        result.user = req.session.user
+
+        return res.status(200).render('products', result)
+
         /*  if (searchQuery) {
             const searchResult = await productModel
             .paginate(
@@ -52,7 +51,7 @@ router.get('/', async (req, res) => {
             console.log(result)
             return res.status(200).render('products', result)
         } */
-        
+
     }
     catch (e) {
         return res.send('an error ocurred:' + e)
@@ -60,7 +59,7 @@ router.get('/', async (req, res) => {
 }
 )
 
-router.get('/search/:query', async (req, res) => {
+/* router.get('/search/:query', async (req, res) => {
     try {
         let limit = parseInt(req.query?.limit ?? 10)
         let page = parseInt(req.query?.page ?? 1)
@@ -82,13 +81,13 @@ router.get('/search/:query', async (req, res) => {
         return res.send('an error ocurred:' + e)
     }
 }
-)
+) */
 
 
 router.get('/:pid', async (req, res) => {
     try {
         const product = await productModel.findOne({ _id: req.params.pid }).lean().exec()
-        return res.status(200).render('productDetail',product)
+        return res.status(200).render('productDetail', product)
     } catch (err) {
         res.send('an error has occurred:' + err)
     }

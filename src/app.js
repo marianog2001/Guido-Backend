@@ -3,18 +3,25 @@ import handlebars from 'express-handlebars'
 import __dirname from './utils.js'
 import { Server } from 'socket.io'
 import mongoose from 'mongoose'
+import session from 'express-session'
+
+// import FileStore from 'session-file-store'
+import MongoStore from 'connect-mongo'
 
 import chatRouter from './api/chat.router.js'
 import viewsRouter from "./api/views.router.js"
 import productRouter from "./api/products.router.js"
 import cartRouter from "./api/cart.router.js"
 import messageModel from './DAO/models/message.model.js'
+import sessionRouter from './api/session.router.js'
 
 //express config
 const app = express()
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use('/static', express.static('./public'))
 app.use('/api/static', express.static('./public'));
+
 
 //-------------------------------------
 
@@ -23,17 +30,6 @@ app.use('/api/static', express.static('./public'));
 app.engine('handlebars', handlebars.engine()) //Inicio motor de plantillas
 app.set('views', './src/views') //Indicamos donde estan las vistas
 app.set('view engine', 'handlebars') //Indicamos motor que usarán las vistas
-//--------------------------------------
-
-
-//config rutas
-app.use('/', viewsRouter)
-
-app.use("/api/products", productRouter)
-
-app.use("/api/carts", cartRouter)
-
-app.use("/chat", chatRouter)
 //--------------------------------------
 
 
@@ -69,3 +65,45 @@ mongoose.connect(url, { dbName: 'ecommerce' })
         }
     )
 //--------------------------------------
+
+//login
+// const fileStore = FileStore(session) -----file storage
+
+
+app.use(session({
+
+    store: MongoStore.create({
+        mongoUrl:url,
+        dbName:'ecommerce',
+        mongoOptions:{
+            useNewUrlParser:true,
+            useUnifiedTopology:true
+        }
+    }),
+
+    // file storage
+    /* store: new fileStore({
+        path:'./sessions',
+        retries:2
+    }), */
+
+
+    secret:'secret',
+    resave:true, //mantiene sesion activa
+    saveUninitialized:true //Guarda los datos
+}))
+
+//-----------------------------------------
+
+//config rutas
+app.use('/', viewsRouter)
+
+app.use('/api/session', sessionRouter)
+
+app.use("/api/products", productRouter)
+
+app.use("/api/carts", cartRouter)
+
+app.use("/chat", chatRouter)
+//--------------------------------------
+

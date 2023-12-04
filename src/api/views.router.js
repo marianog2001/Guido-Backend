@@ -2,6 +2,21 @@ import { Router } from "express"
 
 const router = Router()
 
+//--------------- MIDDLEWARES ----------------
+function onlyPublicWithoutSession(req,res,next) {
+    if (req.session?.user) return res.redirect('/profile')
+
+    return next()
+}
+
+function auth(req,res,next) {
+    if(req.session?.user) return next()
+
+    res.redirect('/login')
+}
+
+//------------------------------------------
+
 router.get('/', async(req,res) => {
     try {
         res.render('index')
@@ -11,21 +26,23 @@ router.get('/', async(req,res) => {
     }
 })
 
-/* router.get('/realtimeproducts', async(req,res) => {
-    try {
+router.get('/login', onlyPublicWithoutSession, (req,res) => {
+    return res.render('login')
+})
 
-        let products = await ProductManager.getProducts()
+router.get('/register', onlyPublicWithoutSession, (req,res) => {
+    return res.render('register')
+})
 
-        res.render('realTimeProducts', {
-            products : products
-        })
+router.get('/profile', auth, (req,res) => {
+    const user = req.session.user
+    
+    res.render('profile',user)
+})
 
-        
-    } catch (err) {
-        res.send('an error has occurred')
-        console.log(err)
-    }
-}) */
+//adminCoder@coder.com
+//adminCod3r123)
+
 
 
 export default router
