@@ -1,9 +1,12 @@
 import express from 'express'
+import mongoose from 'mongoose'
+import passport from 'passport'
 import handlebars from 'express-handlebars'
 import __dirname from './utils.js'
 import { Server } from 'socket.io'
-import mongoose from 'mongoose'
 import session from 'express-session'
+
+import initializePassport from './config/passport.config.js'
 
 // import FileStore from 'session-file-store'
 import MongoStore from 'connect-mongo'
@@ -27,9 +30,15 @@ app.use('/api/static', express.static('./public'));
 
 
 //config handlebars
-app.engine('handlebars', handlebars.engine()) //Inicio motor de plantillas
-app.set('views', './src/views') //Indicamos donde estan las vistas
+app.engine('handlebars', handlebars.engine({
+    extname:'handlebars',
+    defaultLayout:'main',
+    layoutsDir:__dirname + '/views/layouts',
+    partialsDir:__dirname + '/views/partials'
+})) //Inicio motor de plantillas
+app.set('views', __dirname + '/views') //Indicamos donde estan las vistas
 app.set('view engine', 'handlebars') //Indicamos motor que usarán las vistas
+
 //--------------------------------------
 
 
@@ -93,6 +102,13 @@ app.use(session({
     saveUninitialized:true //Guarda los datos
 }))
 
+//-----------------------------------------
+
+
+//passport
+initializePassport()
+app.use(passport.initialize())
+app.use(passport.session())
 //-----------------------------------------
 
 //config rutas

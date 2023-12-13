@@ -15,9 +15,15 @@ function auth(req,res,next) {
     res.redirect('/login')
 }
 
+function userData(req,res,next) {
+    const user = req.session.user || null
+    res.locals.user = user
+    next()
+}
+
 //------------------------------------------
 
-router.get('/', async(req,res) => {
+router.get('/', userData, async(req,res) => {
     try {
         res.render('index')
     } catch (err) {
