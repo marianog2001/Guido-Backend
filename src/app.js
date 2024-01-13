@@ -1,125 +1,149 @@
-import express from 'express'
-import mongoose from 'mongoose'
-import passport from 'passport'
-import handlebars from 'express-handlebars'
-import __dirname from './utils.js'
-import { Server } from 'socket.io'
-import session from 'express-session'
+import express from "express"
 
-import initializePassport from './config/passport.config.js'
+import mongoose from "mongoose"
 
-// import FileStore from 'session-file-store'
-import MongoStore from 'connect-mongo'
+import passport from "passport"
 
-import chatRouter from './api/chat.router.js'
-import viewsRouter from "./api/views.router.js"
-import productRouter from "./api/products.router.js"
-import cartRouter from "./api/cart.router.js"
-import messageModel from './DAO/models/message.model.js'
-import sessionRouter from './api/session.router.js'
+import handlebars from "express-handlebars"
 
-//express config
+import { Server } from "socket.io"
+
+import session from "express-session"
+
+import cookieParser from "cookie-parser"
+
+import initializePassport from "./config/passport.config.js"
+
+import __dirname from "./utils.js"
+
+import router from "./router/router.js"
+
+import messageModel from "./DAO/mongo/models/message.model.js"
+
+// import MongoStore from "connect-mongo"
+
+
+import { port, url, dbName } from "./environment.js"
+
+
+
+
+// express config
+
 const app = express()
+
 app.use(express.json())
+
 app.use(express.urlencoded({ extended: true }))
-app.use('/static', express.static('./public'))
-app.use('/api/static', express.static('./public'));
 
+app.use("/static", express.static("./public"))
 
-//-------------------------------------
+app.use("/api/static", express.static("./public"))
 
+// config handlebars
 
-//config handlebars
-app.engine('handlebars', handlebars.engine({
-    extname:'handlebars',
-    defaultLayout:'main',
-    layoutsDir:__dirname + '/views/layouts',
-    partialsDir:__dirname + '/views/partials'
-})) //Inicio motor de plantillas
-app.set('views', __dirname + '/views') //Indicamos donde estan las vistas
-app.set('view engine', 'handlebars') //Indicamos motor que usarán las vistas
+app.engine("handlebars", handlebars.engine({
 
-//--------------------------------------
+    extname: "handlebars",
 
+    defaultLayout: "main",
 
-//mongoose config
-const url = "mongodb+srv://marianog2001:6pvmodo6doiRze65@cluster0.3wxdcut.mongodb.net/"
+    layoutsDir: `${__dirname}/views/layouts`,
 
-mongoose.connect(url, { dbName: 'ecommerce' })
+    partialsDir: `${__dirname}/views/partials`,
+
+})) // Inicio motor de plantillas
+
+app.set("views", `${__dirname}/views`) // Indicamos donde estan las vistas
+
+app.set("view engine", "handlebars") // Indicamos motor que usarán las vistas
+
+// mongoose config
+
+mongoose.connect(url, { dbName })
+
     .then(() => {
-        console.log('db connected succesfully')
-        const httpServer = app.listen(8080, () => { console.log('server running') })
+
+        console.log("db connected succesfully")
+
+        const httpServer = app.listen(port, () => { console.log("server running") })
+
         const socketServer = new Server(httpServer)
-        app.set('socketio', socketServer);
-        socketServer.on('connection', async socket => {
-            console.log('New client connected')
 
-            let messageLogs = await messageModel.find().lean().exec() || []
-            socket.emit('logs', messageLogs)
+        app.set("socketio", socketServer)
 
-            socket.on('emit message', async newMessage => {
-                let result = await messageModel.create(newMessage)
-                socketServer.emit('render message', newMessage)
+        socketServer.on("connection", async (socket) => {
+
+            console.log("New client connected")
+
+            try {
+                const totalCount = await messageModel.countDocuments({})
+                const totalPages = Math.ceil(totalCount / 10)
+                const messageLogs = await messageModel.paginate({}, { limit: 10, page: totalPages })
+                socket.emit("logs", messageLogs)
+            } catch (error) {
+                console.error("error fetching data: " + error)
+            }
+            socket.on("emit message", async (newMessage) => {
+                await messageModel.create(newMessage)
+                socketServer.emit("render message", newMessage)
             })
-
-            socket.on('error', (error) => {
-                console.error('Socket error:', error);
-            });
+            socket.on("error", (error) => {
+                console.error("Socket error:", error)
+            })
         })
-    }
-    )
+    })
     .catch(
         (e) => {
-            console.error('db failed to connect:' + e)
-        }
+            console.error(`db failed to connect:${e}`)
+        },
     )
-//--------------------------------------
-
-//login
-// const fileStore = FileStore(session) -----file storage
-
+//session
 
 app.use(session({
 
-    store: MongoStore.create({
-        mongoUrl:url,
-        dbName:'ecommerce',
-        mongoOptions:{
-            useNewUrlParser:true,
-            useUnifiedTopology:true
-        }
-    }),
+    /* store: MongoStore.create({
+
+		  mongoUrl:url,
+
+		  dbName:'ecommerce',
+
+		  mongoOptions:{
+
+			  useNewUrlParser:true,
+
+			  useUnifiedTopology:true
+
+		  }
+
+	  }), */
 
     // file storage
+
     /* store: new fileStore({
-        path:'./sessions',
-        retries:2
-    }), */
 
+		  path:'./sessions',
 
-    secret:'secret',
-    resave:true, //mantiene sesion activa
-    saveUninitialized:true //Guarda los datos
+		  retries:2
+
+	  }), */
+
+    secret: "secret",
+
+    resave: true, // mantiene sesion activa
+
+    saveUninitialized: true, // Guarda los datos
+
 }))
 
-//-----------------------------------------
+// passport
 
-
-//passport
 initializePassport()
+
 app.use(passport.initialize())
-app.use(passport.session())
-//-----------------------------------------
 
-//config rutas
-app.use('/', viewsRouter)
+app.use(cookieParser("secretCookie"))
 
-app.use('/api/session', sessionRouter)
+//router
 
-app.use("/api/products", productRouter)
-
-app.use("/api/carts", cartRouter)
-
-app.use("/chat", chatRouter)
-//--------------------------------------
-
+app.use("/",router)

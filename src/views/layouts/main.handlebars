@@ -8,15 +8,10 @@
     <title>{{title}}</title>
 </head>
 
-<body class="bg-main-4 m-0 flex justify-center align-middle">
-    <main class="bg-main-3 mx-10 p-2">
-        <nav>
-        <div class="bg-slate-800">
-            <h1 class="text-red-500 text-5xl">Welcome to Groove Gallery</h1>
-            <h2 class="text-red-300">here we are, making some tests</h2>
-        </div>
-        {{> userPanel }}
-        </nav>
+<body class="m-0 flex flex-col justify-center align-middle">
+    {{> navbar }}
+
+    <main class="mx-10 p-2">
         {{{body}}}
     </main>
 

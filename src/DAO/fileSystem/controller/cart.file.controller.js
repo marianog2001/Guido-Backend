@@ -1,9 +1,9 @@
-import fs from 'fs'
+import fs from "fs"
 
-class CartManager {
+export default class CartManager {
     constructor() {
-        this.path = './src/CartDB.json'
-        this.format = 'utf-8'
+        this.path = "./src/CartDB.json"
+        this.format = "utf-8"
         this.carts = []
     }
 
@@ -23,7 +23,7 @@ class CartManager {
             return cart
         }
         else {
-            console.error('Cart not found')
+            console.error("Cart not found")
         }
     }
 
@@ -52,11 +52,11 @@ class CartManager {
         try {
             const carts = await this.getCarts()
             let cart = await this.getCartById(cartId)
-            if (!cart) { return console.error('cart not found') }
+            if (!cart) { return console.error("cart not found") }
             console.log(cart.products)
             if (cart.products.find((product) => product.id == productId)) {
 
-                cart.products[cart.products.findIndex((product) => product.id == productId)].quantity++
+                cart.products[cart.products.findIndex((product) => product.id == productId)].quantity =+ quantity
 
             } else { cart.products.push({ id: productId, quantity: 1 }) }
             let cartIndex = carts.findIndex(cartToUpdate => cartToUpdate.id === cartId)
@@ -69,4 +69,3 @@ class CartManager {
     }
 }
 
-export default CartManager = new CartManager()

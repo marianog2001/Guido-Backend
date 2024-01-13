@@ -1,20 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
+<div class="flex flex-col align-middle justify-center">
+    <h2 class="font-bold text-center justify-self-center text-xl">Registration</h2>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REGISTRATION</title>
-</head>
+    <div class="flex justify-center">
 
-<body>
-    <form action="/api/session/register" method="post">
-        <label for="FIRST NAME">FIRST NAME: <input type="text" name="first_name" placeholder="FIRST NAME"></label>
-        <label for="LAST NAME">LAST NAME: <input type="text" name="last_name" placeholder="LAST NAME"></label>
-        <label for="EMAIL">EMAIL: <input type="text" name="email" placeholder="EMAIL@DOMAIN.COM"></label>
-        <label for="PASSWORD">PASSWORD: <input type="password" name="password" placeholder="PASSWORD"></label>
-        <button type="submit">SUBMIT</button>
-    </form>
-</body>
+        <form action="/api/session/register" method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="first_name">
+                    First name:
+                </label>
+                <input
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    name="first_name" id="first_name" type="text" placeholder="Jimmy" autocomplete="true">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="last_name">
+                    Last name:
+                </label>
+                <input
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    name="last_name" id="last_name" type="text" placeholder="Hendrix" autocomplete="true">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                    Email
+                </label>
+                <input
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    name="email" id="email" type="text" placeholder="Email@domain.com" autocomplete="true">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                    Age
+                </label>
+                <input
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    name="age" id="age" type="number" value="18" max="99" min="16">
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                    Password
+                </label>
+                <input
+                    class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                    name="password" id="password" type="password" placeholder="******************">
+                <p class="text-red-500 text-xs italic">Please choose a password.</p>
+            </div>
+            <div class="flex items-center justify-between">
+                <button
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit">
+                    Sign In
+                </button>
+                <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
+                    Forgot Password?
+                </a>
+            </div>
+        </form>
 
-</html>
+    </div>
+
+    <div class="w-fit flex flex-col self-center content-center items-center">
+        <p class="text-gray-700 font-bold mb-2">Alternative methods</p>
+        <a href="/api/session/github">
+            <button
+                class="w-fit bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit"> Sign in with Github </button>
+        </a>
+    </div>
+
+
+</div>

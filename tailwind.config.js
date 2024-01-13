@@ -3,6 +3,7 @@ export default {
   content: [
     "src/views/layouts/main.handlebars",
     "src/views/*.handlebars",
+    "src/views/partials/*.handlebars",
     "src/views/*.html"
   ],
   theme: {

@@ -14,7 +14,7 @@ chatInput.addEventListener('keyup', (event) => {
 })
 
 socket.on('logs', messages => {                                    
-    messages.forEach(eachMessage => {
+    messages.docs.forEach(eachMessage => {
         let {author, message} = eachMessage
         const p = document.createElement('p')
         p.innerHTML += `
