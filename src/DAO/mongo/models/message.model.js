@@ -1,11 +1,12 @@
-import mongoose from "mongoose"
-import mongoosePaginate from "mongoose-paginate-v2"
+import mongoose from 'mongoose'
+import mongoosePaginate from 'mongoose-paginate-v2'
 
-const messageCollection = "messages"
+const messageCollection = 'messages'
 
 const messageSchema = new mongoose.Schema({
     author:String,
-    message:String
+    message:String,
+    timestamp:Date
 })
 
 messageSchema.plugin(mongoosePaginate)

@@ -1,29 +1,36 @@
-import express from "express"
+import express from 'express'
 
-import mongoose from "mongoose"
+import passport from 'passport'
 
-import passport from "passport"
+import handlebars from 'express-handlebars'
 
-import handlebars from "express-handlebars"
+import { Server } from 'socket.io'
 
-import { Server } from "socket.io"
+import session from 'express-session'
 
-import session from "express-session"
+import cookieParser from 'cookie-parser'
 
-import cookieParser from "cookie-parser"
+import initializePassport from './config/passport.config.js'
 
-import initializePassport from "./config/passport.config.js"
+import __dirname from './utils.js'
 
-import __dirname from "./utils.js"
+import cartRouter from './router/cart.router.js'
 
-import router from "./router/router.js"
+import chatRouter from './router/chat.router.js'
 
-import messageModel from "./DAO/mongo/models/message.model.js"
+import productsRouter from './router/products.router.js'
+
+import userRouter from './router/user.router.js'
+
+import viewsRouter from './router/views.router.js'
+
+
+import messageModel from './DAO/mongo/models/message.model.js'
 
 // import MongoStore from "connect-mongo"
 
 
-import { port, url, dbName } from "./environment.js"
+import { port } from './environment.js'
 
 
 
@@ -36,17 +43,20 @@ app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }))
 
-app.use("/static", express.static("./public"))
+app.use('/static', express.static('./public'))
 
-app.use("/api/static", express.static("./public"))
+app.use('/api/static', express.static('./public'))
+
+//server
+const httpServer = app.listen(port, () => { console.log('SERVER RUNNING ON PORT: ' + port) })
 
 // config handlebars
 
-app.engine("handlebars", handlebars.engine({
+app.engine('handlebars', handlebars.engine({
 
-    extname: "handlebars",
+    extname: 'handlebars',
 
-    defaultLayout: "main",
+    defaultLayout: 'main',
 
     layoutsDir: `${__dirname}/views/layouts`,
 
@@ -54,81 +64,71 @@ app.engine("handlebars", handlebars.engine({
 
 })) // Inicio motor de plantillas
 
-app.set("views", `${__dirname}/views`) // Indicamos donde estan las vistas
+app.set('views', `${__dirname}/views`) // Indicamos donde estan las vistas
 
-app.set("view engine", "handlebars") // Indicamos motor que usarán las vistas
+app.set('view engine', 'handlebars') // Indicamos motor que usarán las vistas
 
-// mongoose config
+// socketio and message config
 
-mongoose.connect(url, { dbName })
 
-    .then(() => {
 
-        console.log("db connected succesfully")
+const io = new Server(httpServer)
 
-        const httpServer = app.listen(port, () => { console.log("server running") })
+app.set('socketio', io)
 
-        const socketServer = new Server(httpServer)
+io.on('connection', async (socket) => {
 
-        app.set("socketio", socketServer)
+    console.log('New client connected')
 
-        socketServer.on("connection", async (socket) => {
-
-            console.log("New client connected")
-
-            try {
-                const totalCount = await messageModel.countDocuments({})
-                const totalPages = Math.ceil(totalCount / 10)
-                const messageLogs = await messageModel.paginate({}, { limit: 10, page: totalPages })
-                socket.emit("logs", messageLogs)
-            } catch (error) {
-                console.error("error fetching data: " + error)
-            }
-            socket.on("emit message", async (newMessage) => {
-                await messageModel.create(newMessage)
-                socketServer.emit("render message", newMessage)
-            })
-            socket.on("error", (error) => {
-                console.error("Socket error:", error)
-            })
-        })
+    try {
+        const totalCount = await messageModel.countDocuments({})
+        const totalPages = Math.ceil(totalCount / 10)
+        const messageLogs = await messageModel.paginate({}, { limit: 10, page: totalPages })
+        socket.emit('logs', messageLogs)
+    } catch (error) {
+        console.error('error fetching data: ' + error)
+    }
+    socket.on('emit message', async (newMessage) => {
+        await messageModel.create(newMessage)
+        io.emit('render message', newMessage)
     })
-    .catch(
-        (e) => {
-            console.error(`db failed to connect:${e}`)
-        },
-    )
+    socket.on('error', (error) => {
+        console.error('Socket error: ' + error)
+    })
+})
+
+
 //session
 
 app.use(session({
 
     /* store: MongoStore.create({
 
-		  mongoUrl:url,
+          mongoUrl:url,
 
-		  dbName:'ecommerce',
+          dbName:'ecommerce',
 
-		  mongoOptions:{
+          mongoOptions:{
 
-			  useNewUrlParser:true,
+              useNewUrlParser:true,
 
-			  useUnifiedTopology:true
+              useUnifiedTopology:true
 
-		  }
+          }
 
-	  }), */
+      }), */
 
     // file storage
 
     /* store: new fileStore({
 
-		  path:'./sessions',
+          path:'./sessions',
 
-		  retries:2
+          retries:2
 
-	  }), */
+      }), */
 
-    secret: "secret",
+    secret: 'secret',
 
     resave: true, // mantiene sesion activa
 
@@ -142,8 +142,17 @@ initializePassport()
 
 app.use(passport.initialize())
 
-app.use(cookieParser("secretCookie"))
+app.use(cookieParser('secretCookie'))
 
 //router
 
-app.use("/",router)
+app.use('/api/cart', cartRouter)
+
+app.use('/api/chat', chatRouter)
+
+app.use('/api/session' , userRouter)
+
+app.use('/', viewsRouter)
+
+app.use('/api/products', productsRouter)
+

@@ -1,16 +1,16 @@
-import passport from "passport"
+import passport from 'passport'
+import passportJWT from 'passport-jwt'
+import local from 'passport-local'
+import GithubStrategy from 'passport-github2'
 
-import passportJWT from "passport-jwt"
-import local from "passport-local"
-import GithubStrategy from "passport-github2"
-import userModel from "../DAO/mongo/models/user.model.js"
-import cartModel from "../DAO/mongo/models/cart.models.js"
-import { createHash, passwordValidator, generateToken } from "../utils.js"
+import { createHash, passwordValidator, generateToken } from '../utils.js'
 
+import { UserService, CartService } from '../repositories/index.js'
 
 // env config
 
-import { githubClientID, githubSecret, jwtSecret } from "../environment.js"
+import { githubClientID, githubSecret, jwtSecret } from '../environment.js'
+import UserInsertDTO from '../DTO/user.dto.js'
 
 
 
@@ -20,34 +20,32 @@ const LocalStrategy = local.Strategy
 const JWTStrategy = passportJWT.Strategy
 
 const initializePassport = () => {
-    passport.use("register", new LocalStrategy({
+    passport.use('register', new LocalStrategy({
         passReqToCallback: true,
-        usernameField: "email",
+        usernameField: 'email',
     }, async (req, username, password, done) => {
-        const {
-            first_name, last_name, email, age,
-        } = req.body
+        const { first_name, last_name, email, age } = req.body
 
         try {
-            const user = await userModel.findOne({ email: username })
-            if (user) {
-                console.log("user already exists")
-                return done(null, false, { message: " user already exists " })
+            if (UserService.checkExistance(email)) {
+                console.log('user already exists')
+                return done(null, false, { message: ' user already exists ' })
             }
 
-            const newUserCart = new cartModel()
-            newUserCart.save()
+            const newUserCart = CartService.createCart()
 
-            const newUser = {
+            const newUser = new UserInsertDTO({
                 first_name,
                 last_name,
                 email,
                 age,
                 password: createHash(password),
-                cartId: newUserCart._id,
-            }
+                cartId: newUserCart._id
+            })
 
-            const result = await userModel.create(newUser)
+            const result = await UserService.createUser(newUser)
+            const token = generateToken(result)
+            result.token = token
 
             return done(null, result)
         } catch (e) {
@@ -55,55 +53,56 @@ const initializePassport = () => {
         }
     }))
 
-    passport.use("login", new LocalStrategy(
-        { usernameField: "email" },
+    passport.use('login', new LocalStrategy(
+        { usernameField: 'email' },
         async (username, password, done) => {
             try {
                 /* console.log(username + ' -- ' + password) */
-                const user = await userModel.findOne({ email: username }).lean().exec()
-                if (!user) {
-                    console.log("user doesnt exist!")
+                const user = await UserService.getUser(username)
+                if (!UserService.checkExistance(username)) {
+                    console.log('user doesnt exist!')
                     return done(null, false)
                 }
 
                 if (!passwordValidator(user, password)) {
-                    console.log("password not valid")
+                    console.log('password not valid')
                     return done(null, false)
                 }
 
                 return done(null, user)
-            } catch (e) {
-                return done(`login error ${e}`)
+            } catch (error) {
+                return done('error on login: ' + error)
             }
         },
     ))
 
-    passport.use("github", new GithubStrategy({
+    passport.use('github', new GithubStrategy({
         clientID: githubClientID,
         clientSecret: githubSecret,
-        callbackURL: "http://127.0.0.1:8080/api/session/githubcallback",
+        callbackURL: 'http://127.0.0.1:8080/api/session/githubcallback',
     }, async (accessToken, refreshToken, profile, done) => {
         console.log(profile)
 
         try {
-            const user = await userModel.findOne({ email: profile._json.email })
+            const user = await UserService.getUser({ email: profile._json.email })
+            
+            //case of user existing:
             if (user) {
                 const token = generateToken(user)
                 user.token = token
-                //----------------
-
                 return done(null, user)
             }
 
-            const newUserCart = new cartModel()
-            newUserCart.save()
 
-            const newUser = await userModel.create({
+            //case of github register:
+            const newUserCart = await CartService.createCart()
+
+            const newUser = new UserInsertDTO({
                 first_name: profile._json.name,
-                last_name: "",
+                last_name: '',
                 email: profile._json.email,
-                age: "",
-                password: "",
+                age: '',
+                password: '',
                 cartId: newUserCart._id,
             })
 
@@ -116,7 +115,7 @@ const initializePassport = () => {
         }
     }))
 
-    passport.use("jwt", new JWTStrategy({
+    passport.use('jwt', new JWTStrategy({
         jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([(req) => req?.cookies?.cookieJWT ?? null]),
         secretOrKey: jwtSecret,
     }, (jwt_payload, done) => {
@@ -128,7 +127,7 @@ const initializePassport = () => {
     })
 
     passport.deserializeUser(async (id, done) => {
-        const user = await userModel.findById(id)
+        const user = await UserService.getUserByID(id)
         done(null, user)
     })
 }
