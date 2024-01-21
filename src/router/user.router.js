@@ -1,7 +1,7 @@
 import passport from 'passport'
 import { generateToken } from '../utils.js'
 import { Router } from 'express'
-
+import CurrentInsertDTO from '../DTO/current.dto.js'
 
 //adminCoder@coder.com
 //adminCod3r123)
@@ -50,10 +50,10 @@ router.get('/error', (req, res) => {
 )
 
 router.get(
-    '/profile',
+    '/current',
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
-        const { user } = req.user
+        const user = new CurrentInsertDTO(req.user)
         res.render('profile', user)
     }
 )

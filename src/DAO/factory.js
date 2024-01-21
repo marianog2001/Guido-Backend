@@ -3,7 +3,7 @@
 import { persistence, url, dbName } from '../environment.js'
 import mongoose from 'mongoose'
 
-export let Products, Carts, Users
+export let Products, Carts, Users, Messages
 
 console.log('Persistence using: ' + persistence)
 
@@ -12,7 +12,7 @@ case 'MONGO':
 
     await mongoose.connect(url, { dbName })
         .then(() => {
-            console.log('db connected succesfully')
+            console.log('DATABASE connected succesfully')
         })
         .catch(
             (error) => {
@@ -22,6 +22,8 @@ case 'MONGO':
     const { default: ProductsMongo } = await import('./mongo/controller/products.controller.js')
     const { default: CartsMongo } = await import('./mongo/controller/cart.controller.js')
     const { default: UsersMongo } = await import('./mongo/controller/user.controller.js')
+    const { default: MessagesMongo } = await import('./mongo/controller/message.controller.js')
+    Messages = MessagesMongo
     Products = ProductsMongo
     Carts = CartsMongo
     Users = UsersMongo

@@ -36,5 +36,14 @@ export class CartRepository {
         return result
     }
 
+    async checkStock(cid) {
+        const result = await this.dao.checkStock(cid)
+        return result
+    }
+
+    async purchaseCart(cart) {
+        const result = await this.dao.purchaseCart(cart)
+        return result
+    }
 
 }

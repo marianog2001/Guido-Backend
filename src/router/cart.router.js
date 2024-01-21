@@ -1,5 +1,7 @@
-import { ProductService, CartService } from '../repositories/index.js'
+import { ProductService, CartService, TicketService } from '../repositories/index.js'
 import { Router } from 'express'
+import passport from 'passport'
+
 
 const router = Router()
 
@@ -18,12 +20,12 @@ router.post('/', async (req, res) => {
 }
 )
 
-//SEE CART DSDGDFJNHJFGIHIUJOFGDNBMJKGDCBKLMDGV
+//SEE CART
 router.get('/:cid', async (req, res) => {
     try {
         let cid = parseInt(req.params.cid)
         let cart = await CartService.getCart(cid)
-        
+
         return res.status(200).json({ status: 'success', payload: cart })
     } catch (error) {
         console.log('error getting cart: ' + error)
@@ -116,5 +118,28 @@ router.put('/:cid/products/:pid', async (req, res) => {
     }
 }
 )
+
+router.post('/:cid/purchase',
+    passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        try {
+            const cid = parseInt(req.params.cid)
+            const userEmail = req.user.email
+            const cart = await CartService.getCart(cid)
+            if (!cart) {
+                return res.status(404).json({ message: 'cart not found' })
+            }
+            if (!CartService.checkStock(cart)) {
+                return res.status(400).json({ message: 'not enough stock' })
+            }
+            const price = await CartService.purchaseCart(cid)
+            const ticket = await TicketService.createTicket(price, userEmail)
+            return res.status(200).json({ status: 'success', payload: ticket })
+        } catch (error) {
+            return error
+        }
+    }
+)
+
 
 export default router

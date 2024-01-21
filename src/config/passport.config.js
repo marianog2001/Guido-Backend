@@ -27,7 +27,7 @@ const initializePassport = () => {
         const { first_name, last_name, email, age } = req.body
 
         try {
-            if (UserService.checkExistance(email)) {
+            if (UserService.checkExistence(email)) {
                 console.log('user already exists')
                 return done(null, false, { message: ' user already exists ' })
             }
@@ -59,7 +59,7 @@ const initializePassport = () => {
             try {
                 /* console.log(username + ' -- ' + password) */
                 const user = await UserService.getUser(username)
-                if (!UserService.checkExistance(username)) {
+                if (!UserService.checkExistence(username)) {
                     console.log('user doesnt exist!')
                     return done(null, false)
                 }

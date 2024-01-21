@@ -1,4 +1,6 @@
 console.log('chat connected')
+
+
 const socket = io()
 const chatBox = document.querySelector('#chatBox')
 const chatInput = document.querySelector('#chatInput')

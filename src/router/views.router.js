@@ -22,7 +22,6 @@ router.get('/register', (req, res) => {
     return res.render('register')
 })
 
-
 export default router
 
 

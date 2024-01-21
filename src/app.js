@@ -2,7 +2,7 @@ import express from 'express'
 
 import passport from 'passport'
 
-import handlebars from 'express-handlebars'
+import {engine} from 'express-handlebars'
 
 import { Server } from 'socket.io'
 
@@ -25,12 +25,13 @@ import userRouter from './router/user.router.js'
 import viewsRouter from './router/views.router.js'
 
 
-import messageModel from './DAO/mongo/models/message.model.js'
+
 
 // import MongoStore from "connect-mongo"
 
 
 import { port } from './environment.js'
+import { MessageService } from './repositories/index.js'
 
 
 
@@ -43,54 +44,65 @@ app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }))
 
-app.use('/static', express.static('./public'))
 
-app.use('/api/static', express.static('./public'))
+
+//router
+
+app.use('/', viewsRouter)
+
+app.use('/api/cart', cartRouter)
+
+app.use('/api/chat', chatRouter)
+
+app.use('/api/session' , userRouter)
+
+app.use('/api/products', productsRouter)
+
+
+
+
+app.use(express.static(__dirname + '/public'))
+
+/* app.use('/static', express.static('./public'))
+ */
+/* app.use('/api/static', express.static('./public')) */
 
 //server
 const httpServer = app.listen(port, () => { console.log('SERVER RUNNING ON PORT: ' + port) })
 
 // config handlebars
 
-app.engine('handlebars', handlebars.engine({
-
+app.engine('handlebars', engine({
     extname: 'handlebars',
-
     defaultLayout: 'main',
-
-    layoutsDir: `${__dirname}/views/layouts`,
-
-    partialsDir: `${__dirname}/views/partials`,
-
-})) // Inicio motor de plantillas
-
-app.set('views', `${__dirname}/views`) // Indicamos donde estan las vistas
-
-app.set('view engine', 'handlebars') // Indicamos motor que usarán las vistas
+    /* layoutsDir: __dirname + '/views/layouts',
+    partialsDir: __dirname + '/views/partials', */
+}))
+app.set('views', __dirname + '/views')
+app.set('view engine', 'handlebars')
 
 // socketio and message config
 
 
 
-const io = new Server(httpServer)
+export const io = new Server(httpServer)
 
 app.set('socketio', io)
 
 io.on('connection', async (socket) => {
 
-    console.log('New client connected')
+    /* console.log('New client connected') */
 
     try {
-        const totalCount = await messageModel.countDocuments({})
-        const totalPages = Math.ceil(totalCount / 10)
-        const messageLogs = await messageModel.paginate({}, { limit: 10, page: totalPages })
+        const messageLogs = await MessageService.getMessages()
         socket.emit('logs', messageLogs)
     } catch (error) {
         console.error('error fetching data: ' + error)
     }
     socket.on('emit message', async (newMessage) => {
-        await messageModel.create(newMessage)
-        io.emit('render message', newMessage)
+        
+        const result = await MessageService.createMessage(newMessage)
+        io.emit('render message', result)
     })
     socket.on('error', (error) => {
         console.error('Socket error: ' + error)
@@ -144,15 +156,11 @@ app.use(passport.initialize())
 
 app.use(cookieParser('secretCookie'))
 
-//router
+//handler de '/*' para que el response status 304 no impida la carga del root
+app.get('/*', function(req, res, next){ 
+    res.setHeader('Last-Modified', (new Date()).toUTCString())
+    next() 
+})
 
-app.use('/api/cart', cartRouter)
 
-app.use('/api/chat', chatRouter)
-
-app.use('/api/session' , userRouter)
-
-app.use('/', viewsRouter)
-
-app.use('/api/products', productsRouter)
 

@@ -1,4 +1,5 @@
 import CartModel from '../models/cart.models.js'
+import productModel from '../models/products.models.js'
 
 
 export default class Carts {
@@ -77,6 +78,37 @@ export default class Carts {
         try {
             cart.products = []
             await cart.save()
+        } catch (error) {
+            return error
+        }
+    }
+
+    async checkStock(cart) {
+        try {
+            for (let i = 0; i < cart.products.length; i++) {
+                let product = await productModel.findById(cart.products[i].product)
+                if (product.stock < cart.products[i].quantity) {
+                    return false
+                }
+            }
+            return true
+        } catch (error) {
+            return error
+        }
+    }
+
+    async purchaseCart(cart) {
+        try {
+            let price
+            for (let i = 0; i < cart.products.length; i++) {
+                let product = await productModel.findById(cart.products[i].product)
+                product.stock = product.stock - cart.products[i].quantity
+                price =+ product.price * cart.products[i].quantity
+                await product.save()
+            }
+            await cart.cleanCart()
+            await cart.save()
+            return price
         } catch (error) {
             return error
         }
