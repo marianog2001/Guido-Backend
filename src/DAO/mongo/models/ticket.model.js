@@ -9,8 +9,14 @@ const ticketSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
+    products:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'products'
+        }
+    ],
+    price:Number,
     purchase_datetime: Date,
-    amount:Number,
     purchaser:String,
 
 })

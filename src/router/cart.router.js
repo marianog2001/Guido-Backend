@@ -133,7 +133,7 @@ router.post('/:cid/purchase',
                 return res.status(400).json({ message: 'not enough stock' })
             }
             const price = await CartService.purchaseCart(cid)
-            const ticket = await TicketService.createTicket(price, userEmail)
+            const ticket = await TicketService.createTicket(price, userEmail, cart.products)
             return res.status(200).json({ status: 'success', payload: ticket })
         } catch (error) {
             return error

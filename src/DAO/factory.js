@@ -3,7 +3,7 @@
 import { persistence, url, dbName } from '../environment.js'
 import mongoose from 'mongoose'
 
-export let Products, Carts, Users, Messages
+export let Products, Carts, Users, Messages, Tickets
 
 console.log('Persistence using: ' + persistence)
 
@@ -23,10 +23,12 @@ case 'MONGO':
     const { default: CartsMongo } = await import('./mongo/controller/cart.controller.js')
     const { default: UsersMongo } = await import('./mongo/controller/user.controller.js')
     const { default: MessagesMongo } = await import('./mongo/controller/message.controller.js')
+    const { default: TicketsMongo } = await import('./mongo/controller/ticket.controller.js')
     Messages = MessagesMongo
     Products = ProductsMongo
     Carts = CartsMongo
     Users = UsersMongo
+    Tickets = TicketsMongo
     break
 
 case 'FILE':
