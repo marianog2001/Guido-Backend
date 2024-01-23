@@ -10,14 +10,15 @@ export class CartRepository {
         return cart
     }
 
-    async createCart(cid) {
-        const cartToInsert = new CartInsertDTO(cid)
-        const result = await this.dao.createCart(cartToInsert)
+    async createCart(products) {
+        // const cartToInsert = new CartInsertDTO()
+        // console.log(cartToInsert)
+        const result = await this.dao.createCart(products)
         return result
     }
 
-    async addElementToCart(cid, pid, quantity) {
-        const result = await this.dao.addElementToCart(cid, pid, quantity)
+    async addProductToCart(cid, pid, quantity) {
+        const result = await this.dao.addProductToCart(cid, pid, quantity)
         return result
     }
 
@@ -26,8 +27,8 @@ export class CartRepository {
         return result
     }
 
-    async deleteElementFromCart(cid, pid) {
-        const result = await this.dao.deleteElementFromCart(cid, pid)
+    async deleteProductFromCart(cid, pid) {
+        const result = await this.dao.deleteProductFromCart(cid, pid)
         return result
     }
 

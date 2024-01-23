@@ -1,5 +1,6 @@
-import CartModel from '../models/cart.models.js'
+import CartModel from '../models/cart.model.js'
 import productModel from '../models/products.models.js'
+
 
 
 export default class Carts {
@@ -13,9 +14,9 @@ export default class Carts {
         }
     }
 
-    async createCart() {
+    async createCart(products = []) {
         try {
-            let newCart = await CartModel.create()
+            let newCart = await CartModel.create(products)
             return newCart
         } catch (error) {
             return error
@@ -23,28 +24,24 @@ export default class Carts {
     }
 
 
-    async addElementToCart(cart, pid, quantityProvided = 1) {
+    async addProductToCart(cid, pid) {
         try {
+            let cart = await CartModel.findOne({_id:cid})
+            
             let productIndex = cart.products.findIndex(item => item.product.toString() === pid)
             if (productIndex !== -1) {
-                if (quantityProvided + cart.products[productIndex].quantity <= 0) {
-                    return { error: 'invalid quantity' }
-                }
-                // if the product is already in the cart, add the quantity )
-                cart.products[productIndex].quantity += quantityProvided
+                return {message:"object is already on the cart, try update quantity"}
             } else {
                 // if the product is not in the cart, add it
-                if (quantityProvided <= 0) {
-                    return { error: 'invalid quantity' }
-                }
                 const newProduct = {
                     product: pid,
-                    quantityProvided
+                    quantity: 1
                 }
-                await cart.products.push(newProduct)
+                cart.products.push(newProduct)
+            }
                 await cart.save()
                 return cart
-            }
+            
         } catch (error) {
             return error
         }
@@ -62,7 +59,7 @@ export default class Carts {
     }
 
 
-    async deleteElementFromCart(cart, pid) {
+    async deleteProductFromCart(cart, pid) {
         try {
             let productIndex = cart.products.findIndex(item => item.product.toString() === pid)
             if (productIndex !== -1) {
@@ -103,7 +100,7 @@ export default class Carts {
             for (let i = 0; i < cart.products.length; i++) {
                 let product = await productModel.findById(cart.products[i].product)
                 product.stock = product.stock - cart.products[i].quantity
-                price =+ product.price * cart.products[i].quantity
+                price = + product.price * cart.products[i].quantity
                 await product.save()
             }
             await cart.cleanCart()

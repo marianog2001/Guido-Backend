@@ -1,6 +1,7 @@
 import { ProductService, CartService, TicketService } from '../repositories/index.js'
 import { Router } from 'express'
 import passport from 'passport'
+import cartModel from '../DAO/mongo/models/cart.model.js'
 
 
 const router = Router()
@@ -10,8 +11,9 @@ const router = Router()
 
 router.post('/', async (req, res) => {
     try {
-        await CartService.createCart()
-        return res.status(200).json({ status: 'done' })
+        const newCart = await CartService.createCart({products:[]})
+        console.log(newCart)
+        return res.status(200).json({ status: 'done', payload:newCart })
     }
     catch (error) {
         console.log('error creating cart: ' + error)
@@ -38,8 +40,8 @@ router.get('/:cid', async (req, res) => {
 
 router.post('/:cid/products/:pid', async (req, res) => {
     try {
-        let cid = parseInt(req.params.cid)
-        let pid = parseInt(req.params.pid)
+        let cid = req.params.cid
+        let pid = req.params.pid
         let quantity = parseInt(req.body?.quantity) ?? 1
 
         //checks if cart exists
@@ -50,13 +52,17 @@ router.post('/:cid/products/:pid', async (req, res) => {
         }
 
         //checks if product exists
-        let product = await ProductService.getProduct(pid)
+        let product = await ProductService.getProducts(pid)
         if (!product) {
             console.log('couldn\'t find product')
             return res.status(404).json({ message: 'Product not found' })
         }
 
+
+
         let result = await CartService.addProductToCart(cid, pid, quantity)
+
+        console.log(result)
         return res.status(200).json({ status: 'success', payload: result })
 
     } catch (e) {
@@ -123,6 +129,7 @@ router.post('/:cid/purchase',
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
+            if (req.user.rol !== 'user') {return {message:'you are not authorized'}}
             const cid = parseInt(req.params.cid)
             const userEmail = req.user.email
             const cart = await CartService.getCart(cid)

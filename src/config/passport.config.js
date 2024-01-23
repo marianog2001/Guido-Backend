@@ -27,20 +27,21 @@ const initializePassport = () => {
         const { first_name, last_name, email, age } = req.body
 
         try {
-            if (UserService.checkExistence(email)) {
+
+            if (await UserService.checkExistence(email)) {
                 console.log('user already exists')
                 return done(null, false, { message: ' user already exists ' })
             }
 
-            const newUserCart = CartService.createCart()
-
+            const newUserCart = await CartService.createCart()
+            console.log(newUserCart)
             const newUser = new UserInsertDTO({
                 first_name,
                 last_name,
                 email,
                 age,
                 password: createHash(password),
-                cartId: newUserCart._id
+                cartId: newUserCart.id
             })
 
             const result = await UserService.createUser(newUser)
@@ -57,7 +58,7 @@ const initializePassport = () => {
         { usernameField: 'email' },
         async (username, password, done) => {
             try {
-                /* console.log(username + ' -- ' + password) */
+                /* console.log(username + '    -- ' + password) */
                 const user = await UserService.getUser(username)
                 if (!UserService.checkExistence(username)) {
                     console.log('user doesnt exist!')

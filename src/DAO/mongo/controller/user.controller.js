@@ -3,18 +3,14 @@ import userModel from '../models/user.model.js'
 export default class Users {
 
     async checkExistence(email) {
-        const user = await userModel.findOne({ email: email })
-        if (user) {
-            return true
-        } else {
-            return false
-        }
+        await userModel.exists({ email: email}) ? true : false
     }
 
     async getUser(email) {
         try {
             const user = await userModel.findOne({ email: email })
-            return user
+            const result = user ?   true :  false
+            return result
         } catch (error) {
             console.error('Error getting user : ' + error)
             return error
