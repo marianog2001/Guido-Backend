@@ -24,7 +24,7 @@ import userRouter from './router/user.router.js'
 
 import viewsRouter from './router/views.router.js'
 
-
+import mockRouter from './router/mock.router.js'
 
 
 // import MongoStore from "connect-mongo"
@@ -32,6 +32,7 @@ import viewsRouter from './router/views.router.js'
 
 import { port } from './environment.js'
 import { MessageService } from './repositories/index.js'
+import compression from 'express-compression'
 
 
 
@@ -41,6 +42,10 @@ import { MessageService } from './repositories/index.js'
 const app = express()
 
 app.use(express.json())
+
+app.use(compression({
+    brotli: {enabled:true, zlib: {}}
+}))
 
 app.use(express.urlencoded({ extended: true }))
 
@@ -57,6 +62,8 @@ app.use('/api/chat', chatRouter)
 app.use('/api/session' , userRouter)
 
 app.use('/api/products', productsRouter)
+
+app.use('/mocks',mockRouter)
 
 
 

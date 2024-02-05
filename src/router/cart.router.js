@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
 //SEE CART
 router.get('/:cid', async (req, res) => {
     try {
-        let cid = parseInt(req.params.cid)
+        let cid = req.params.cid
         let cart = await CartService.getCart(cid)
 
         return res.status(200).json({ status: 'success', payload: cart })
@@ -109,14 +109,13 @@ router.delete(('/:cid/products/:pid'), async (req, res) => {
 
 router.put('/:cid/products/:pid', async (req, res) => {
     try {
-        let cid = parseInt(req.params.cid)
-        let pid = parseInt(req.params.pid)
         let newQuantity = parseInt(req.body.quantity)
         let cartToUpdate = await CartService.getCart(cid)
-        if (!cartToUpdate) { return res.status(400).json({ message: 'cart not found' }) }
-
+        if (!cartToUpdate) { return res.status(404).json({ message: 'cart not found' }) }
+        if (typeof(newQuantity) !== 'number') {return res.status(400).json({message:'invalid quantity provided'})}
+        if (ProductService.getOneProduct(pid).stock < newQuantity) {return res.status(409).json({message:'there is not enough stock'})}
         let updatedCart = await CartService.updateCartProductQuantity(cid, pid, newQuantity)
-        if (!updatedCart) { return res.status(400).json({ message: 'product not found' }) }
+        if (!updatedCart) { return res.status(404).json({ message: 'product not found' }) }
         return res.status(200).json({ updatedCart })
     } catch (error) {
         console.error('an error occurred while trying to update the cart : ' + error)
@@ -124,6 +123,8 @@ router.put('/:cid/products/:pid', async (req, res) => {
     }
 }
 )
+
+//cambiar a middleware
 
 router.post('/:cid/purchase',
     passport.authenticate('jwt', { session: false }),

@@ -1,5 +1,6 @@
 import CartModel from '../models/cart.model.js'
 import productModel from '../models/products.models.js'
+import { getOneProduct } from '../../../repositories/product.repository.js'
 
 
 

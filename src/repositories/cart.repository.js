@@ -22,8 +22,8 @@ export class CartRepository {
         return result
     }
 
-    async updateProductQuantity(cid, pid, quantity) {
-        const result = await this.dao.updateProductQuantity(cid, pid, quantity)
+    async updateCartProductQuantity(cid, pid, quantity) {
+        const result = await this.dao.updateCartProductQuantity(cid, pid, quantity)
         return result
     }
 

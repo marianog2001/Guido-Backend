@@ -1,5 +1,6 @@
 import { ProductService } from '../repositories/index.js'
 import { Router } from 'express'
+import { isAdmin } from '../utils.js'
 
 const router = Router()
 
@@ -33,10 +34,12 @@ router.get('/:pid', async (req, res) => {
     }
 })
 
-router.post('/', async (req, res) => {
+router.post('/',
+isAdmin,
+async (req, res) => {
     try {
         const newProduct = req.body
-        const result = await ProductService.createOneProduct(newProduct)
+        const result = await ProductService.createProduct(newProduct)
         req.app.get('socketio').emit('productsUpdate')
         return res.status(200).json(result)
     }
