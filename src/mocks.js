@@ -1,4 +1,4 @@
-import { faker } from "@faker-js/faker"
+import { faker } from '@faker-js/faker'
 
 export const generateProductMock = () => {
 
@@ -15,7 +15,7 @@ export const generateProductMock = () => {
             code: faker.string.alphanumeric(4),
             category: faker.lorem.word(),
             stock:faker.string.numeric(2),
-            stock:faker.datatype.boolean(0.6)
+            status:faker.datatype.boolean(0.6)
         })
 
     }

@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 module.exports = {
     'env': {
         'browser': true,
@@ -22,6 +23,7 @@ module.exports = {
         'sourceType': 'module'
     },
     'rules': {
+
         'indent': [
             'error',
             4
@@ -39,4 +41,5 @@ module.exports = {
             'never'
         ]
     }
+
 }

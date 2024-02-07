@@ -1,6 +1,6 @@
 import CartModel from '../models/cart.model.js'
 import productModel from '../models/products.models.js'
-import { getOneProduct } from '../../../repositories/product.repository.js'
+
 
 
 
@@ -27,11 +27,11 @@ export default class Carts {
 
     async addProductToCart(cid, pid) {
         try {
-            let cart = await CartModel.findOne({_id:cid})
-            
+            let cart = await CartModel.findOne({ _id: cid })
+
             let productIndex = cart.products.findIndex(item => item.product.toString() === pid)
             if (productIndex !== -1) {
-                return {message:"object is already on the cart, try update quantity"}
+                return { message: 'object is already on the cart, try update quantity' }
             } else {
                 // if the product is not in the cart, add it
                 const newProduct = {
@@ -40,9 +40,9 @@ export default class Carts {
                 }
                 cart.products.push(newProduct)
             }
-                await cart.save()
-                return cart
-            
+            await cart.save()
+            return cart
+
         } catch (error) {
             return error
         }

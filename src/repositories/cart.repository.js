@@ -12,7 +12,7 @@ export class CartRepository {
 
     async createCart(products) {
         // const cartToInsert = new CartInsertDTO()
-        // console.log(cartToInsert)
+        // logger.info(cartToInsert)
         const result = await this.dao.createCart(products)
         return result
     }

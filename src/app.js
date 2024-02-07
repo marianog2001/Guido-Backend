@@ -26,6 +26,7 @@ import viewsRouter from './router/views.router.js'
 
 import mockRouter from './router/mock.router.js'
 
+import { errorHandler } from './utils.js'
 
 // import MongoStore from "connect-mongo"
 
@@ -33,6 +34,7 @@ import mockRouter from './router/mock.router.js'
 import { port } from './environment.js'
 import { MessageService } from './repositories/index.js'
 import compression from 'express-compression'
+import { addLogger, logger } from './logger.js'
 
 
 
@@ -49,7 +51,7 @@ app.use(compression({
 
 app.use(express.urlencoded({ extended: true }))
 
-
+app.use(errorHandler)
 
 //router
 
@@ -75,7 +77,7 @@ app.use(express.static(__dirname + '/public'))
 /* app.use('/api/static', express.static('./public')) */
 
 //server
-const httpServer = app.listen(port, () => { console.log('SERVER RUNNING ON PORT: ' + port) })
+const httpServer = app.listen(port, () => { logger.info('SERVER RUNNING ON PORT: ' + port) })
 
 // config handlebars
 
@@ -98,7 +100,7 @@ app.set('socketio', io)
 
 io.on('connection', async (socket) => {
 
-    /* console.log('New client connected') */
+    /* logger.info('New client connected') */
 
     try {
         const messageLogs = await MessageService.getMessages()
@@ -167,6 +169,23 @@ app.use(cookieParser('secretCookie'))
 app.get('/*', function(req, res, next){ 
     res.setHeader('Last-Modified', (new Date()).toUTCString())
     next() 
+})
+
+//ruta de prueba de logger
+
+app.use(addLogger)
+
+app.get('/test', (req, res) => {
+
+    
+    req.logger.debug('debug')
+    
+    req.logger.http('http')
+    req.logger.info('info')
+    req.logger.warning('warn')
+    req.logger.error('error')
+
+    res.send('ok!')
 })
 
 
