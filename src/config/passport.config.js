@@ -86,7 +86,7 @@ const initializePassport = () => {
 
         try {
             const user = await UserService.getUser({ email: profile._json.email })
-            
+
             //case of user existing:
             if (user) {
                 const token = generateToken(user)
@@ -116,12 +116,21 @@ const initializePassport = () => {
         }
     }))
 
+    //JWT
+
     passport.use('jwt', new JWTStrategy({
         jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([(req) => req?.cookies?.cookieJWT ?? null]),
         secretOrKey: jwtSecret,
     }, (jwt_payload, done) => {
         done(null, jwt_payload)
     }))
+
+    // --------------------
+
+
+
+
+
 
     passport.serializeUser((user, done) => {
         done(null, user._id)

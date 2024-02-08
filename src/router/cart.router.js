@@ -1,7 +1,7 @@
 import { ProductService, CartService, TicketService } from '../repositories/index.js'
 import { Router } from 'express'
 import passport from 'passport'
-import cartModel from '../DAO/mongo/models/cart.model.js'
+/* import cartModel from '../DAO/mongo/models/cart.model.js' */
 
 
 const router = Router()
@@ -77,9 +77,9 @@ router.post('/:cid/products/:pid', async (req, res) => {
 router.delete('/:cid', async (req, res) => {
     try {
         const cid = parseInt(req.params.cid)
-        let cartToDelete = await CartService.getCart(cid)
+        const cartToDelete = await CartService.getCart(cid)
         if (!cartToDelete) { return res.status(404).json({ message: 'cart not found' }) }
-        let emptyCart = await CartService.deleteCart(cid)
+        const emptyCart = await CartService.deleteCart(cid)
         return res.status(200).json({ status: 'success', payload: emptyCart })
     } catch (e) {
         console.error('an error occurred while trying to delete the cart : ' + e)
@@ -92,9 +92,9 @@ router.delete('/:cid', async (req, res) => {
 
 router.delete(('/:cid/products/:pid'), async (req, res) => {
     try {
-        let cid = parseInt(req.params.cid)
-        let pid = parseInt(req.params.pid)
-        let cart = await CartService.getCart(cid)
+        const cid = parseInt(req.params.cid)
+        const pid = parseInt(req.params.pid)
+        const cart = await CartService.getCart(cid)
         if (!cart) { return res.status(404).json({ message: 'cart not found' }) }
         await CartService.deleteElementFromCart(cid, pid)
 
@@ -109,8 +109,10 @@ router.delete(('/:cid/products/:pid'), async (req, res) => {
 
 router.put('/:cid/products/:pid', async (req, res) => {
     try {
-        let newQuantity = parseInt(req.body.quantity)
-        let cartToUpdate = await CartService.getCart(cid)
+        const cid = parseInt(req.params.cid)
+        const pid = parseInt(req.params.pid)
+        const newQuantity = parseInt(req.body.quantity)
+        const cartToUpdate = await CartService.getCart(cid)
         if (!cartToUpdate) { return res.status(404).json({ message: 'cart not found' }) }
         if (typeof(newQuantity) !== 'number') {return res.status(400).json({message:'invalid quantity provided'})}
         if (ProductService.getOneProduct(pid).stock < newQuantity) {return res.status(409).json({message:'there is not enough stock'})}

@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import { logger } from './logger.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import EErrors from './errors/enums.js'
@@ -38,21 +39,30 @@ export const isUser = (req, res, next) => {
 
 //errors
 
-export const errorHandler = (error, req, res, next) => {
-    console.error(error)
+export const errorHandler = (error, req, res) => {
+    logger.error(error)
 
     switch (error.code) {
     case EErrors.INVALID_TYPES_ERROR:
-        return res.status(400).send({
+        return res.status(400).json({
             status: 'error',
             error: error.name,
             cause: error.cause
         })
 
     default:
-        res.status(500).send({
+        res.status(500).json({
             status: 'error',
             error: 'unhandled error'
         })
+    }
+}
+
+export const authorization = (rol) => {
+    return (req, res, next) => {
+        if (!req.user) return res.status(401).send({ status: 'error', error: 'unauthorized' })
+        if (req.user.rol != rol) return res.status(403).send({ status: 'error', error: 'forbidden' })
+
+        next()
     }
 }

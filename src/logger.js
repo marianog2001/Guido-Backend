@@ -27,23 +27,19 @@ const prodTransport = [
 
 const transports = isInProduction ? prodTransport : devTransport
 
+
+
 export const logger = winston.createLogger({
     transports: transports,
     format: winston.format.combine(
         winston.format.colorize(),
-        winston.format.simple()
+        winston.format.simple(),
+        winston.format.splat()
     ),
     levels: customLevels,
 
 })
 
-/* const prodLogger = winston.createLogger({
-    transports: [
-        new winston.transports.File({
-            filename:'./errors.log', level: 'warn'})
-    ]
-})
- */
 
 export const addLogger = (req, res, next) => {
     req.logger = logger
