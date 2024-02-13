@@ -9,8 +9,10 @@ export default class Users {
     async getUser(email) {
         try {
             const user = await userModel.findOne({ email: email })
-            const result = user ?   true :  false
-            return result
+            if (!user) {
+                throw new Error('User not found')
+            }
+            return user
         } catch (error) {
             console.error('Error getting user : ' + error)
             return error

@@ -1,7 +1,11 @@
 import passport from 'passport'
-import { generateToken } from '../utils.js'
+import { generateToken} from '../utils.js'
 import { Router } from 'express'
 import CurrentInsertDTO from '../DTO/current.dto.js'
+import {logger} from '../logger.js'
+
+
+
 
 //adminCoder@coder.com
 //adminCod3r123)
@@ -41,7 +45,7 @@ router.post(
 
 router.get('/error', (req, res) => {
     const error = req?.query ?? 'server error'
-    console.error(error)
+    logger.error(error)
     res.render('errors/errorPage', {
         status: 'error',
         error,
@@ -51,9 +55,10 @@ router.get('/error', (req, res) => {
 
 router.get(
     '/current',
-    passport.authenticate('jwt', { session: false }),
+    passport.authenticate('jwt', { session: false}),
     async (req, res) => {
-        const user = new CurrentInsertDTO(req.user)
+        const user = req.user
+        logger.debug(user)
         res.render('profile', user)
     }
 )

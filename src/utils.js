@@ -1,9 +1,10 @@
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
-import { logger } from './logger.js'
+/* import { logger } from './logger.js' */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import EErrors from './errors/enums.js'
+import { jwtSecret } from './environment.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -23,7 +24,7 @@ export const passwordValidator = (user, password) => {
 
 //jwt
 export const generateToken = (user) => {
-    const token = jwt.sign({ user }, 'coderTokenForJWT', { expiresIn: '24h' })
+    const token = jwt.sign({ user }, jwtSecret, { expiresIn: '24h' })
 
     return token
 }
@@ -39,8 +40,8 @@ export const isUser = (req, res, next) => {
 
 //errors
 
-export const errorHandler = (error, req, res) => {
-    logger.error(error)
+// eslint-disable-next-line no-unused-vars
+export const errorHandler = (error, req, res, next) => {
 
     switch (error.code) {
     case EErrors.INVALID_TYPES_ERROR:
@@ -55,14 +56,5 @@ export const errorHandler = (error, req, res) => {
             status: 'error',
             error: 'unhandled error'
         })
-    }
-}
-
-export const authorization = (rol) => {
-    return (req, res, next) => {
-        if (!req.user) return res.status(401).send({ status: 'error', error: 'unauthorized' })
-        if (req.user.rol != rol) return res.status(403).send({ status: 'error', error: 'forbidden' })
-
-        next()
     }
 }

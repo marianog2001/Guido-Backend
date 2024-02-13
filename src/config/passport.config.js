@@ -4,7 +4,7 @@ import local from 'passport-local'
 import GithubStrategy from 'passport-github2'
 
 import { createHash, passwordValidator, generateToken } from '../utils.js'
-
+import { logger } from '../logger.js'
 import { UserService, CartService } from '../repositories/index.js'
 
 // env config
@@ -13,7 +13,7 @@ import { githubClientID, githubSecret, jwtSecret } from '../environment.js'
 import UserInsertDTO from '../DTO/user.dto.js'
 
 
-
+// --------------------
 
 const LocalStrategy = local.Strategy
 
@@ -29,12 +29,12 @@ const initializePassport = () => {
         try {
 
             if (await UserService.checkExistence(email)) {
-                console.log('user already exists')
+                logger.error('user already exists')
                 return done(null, false, { message: ' user already exists ' })
             }
 
             const newUserCart = await CartService.createCart()
-            console.log(newUserCart)
+            logger.debug(newUserCart)
             const newUser = new UserInsertDTO({
                 first_name,
                 last_name,
@@ -58,15 +58,17 @@ const initializePassport = () => {
         { usernameField: 'email' },
         async (username, password, done) => {
             try {
-                /* console.log(username + '    -- ' + password) */
+                /* logger.debug(username + '    -- ' + password) */
                 const user = await UserService.getUser(username)
+                /* const user = await UserController.getUser(username) */
+                logger.debug(user)
                 if (!UserService.checkExistence(username)) {
-                    console.log('user doesnt exist!')
+                    logger.error('user doesnt exist!')
                     return done(null, false)
                 }
 
                 if (!passwordValidator(user, password)) {
-                    console.log('password not valid')
+                    logger.error('password not valid')
                     return done(null, false)
                 }
 
@@ -82,7 +84,7 @@ const initializePassport = () => {
         clientSecret: githubSecret,
         callbackURL: 'http://127.0.0.1:8080/api/session/githubcallback',
     }, async (accessToken, refreshToken, profile, done) => {
-        console.log(profile)
+        logger.debug(profile)
 
         try {
             const user = await UserService.getUser({ email: profile._json.email })
@@ -119,9 +121,14 @@ const initializePassport = () => {
     //JWT
 
     passport.use('jwt', new JWTStrategy({
-        jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([(req) => req?.cookies?.cookieJWT ?? null]),
+        jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([(req) => {
+            const token = req?.cookies?.cookieJWT ?? null
+            
+            return token
+        }]),
         secretOrKey: jwtSecret,
     }, (jwt_payload, done) => {
+        
         done(null, jwt_payload)
     }))
 

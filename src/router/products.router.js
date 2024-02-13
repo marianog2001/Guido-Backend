@@ -35,20 +35,20 @@ router.get('/:pid', async (req, res) => {
 })
 
 router.post('/',
-isAdmin,
-async (req, res) => {
-    try {
-        const newProduct = req.body
-        const result = await ProductService.createProduct(newProduct)
-        req.app.get('socketio').emit('productsUpdate')
-        return res.status(200).json(result)
-    }
+    isAdmin,
+    async (req, res) => {
+        try {
+            const newProduct = req.body
+            const result = await ProductService.createProduct(newProduct)
+            req.app.get('socketio').emit('productsUpdate')
+            return res.status(200).json(result)
+        }
 
-    catch (error) {
-        console.log(error)
-        return res.status(400).json({ message: error })
-    }
-})
+        catch (error) {
+            console.log(error)
+            return res.status(400).json({ message: error })
+        }
+    })
 
 router.put('/:pid', async (req, res) => {
     try {
@@ -76,7 +76,7 @@ router.put('/:pid', async (req, res) => {
     }
 })
 
-router.delete('/:pid',async (req, res) => {
+router.delete('/:pid', async (req, res) => {
     try {
         let pid = parseInt(req.params.pid)
         await ProductService.deleteOneProduct(pid)
