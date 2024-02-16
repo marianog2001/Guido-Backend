@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
-/* import { logger } from './logger.js' */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import EErrors from './errors/enums.js'
-import { jwtSecret } from './environment.js'
+import { jwtSecret, gmailUser, gmailPass } from './environment.js'
+import nodemailer from 'nodemailer'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -38,7 +38,7 @@ export const isUser = (req, res, next) => {
 }
 
 
-//errors
+//error handler
 
 // eslint-disable-next-line no-unused-vars
 export const errorHandler = (error, req, res, next) => {
@@ -57,4 +57,23 @@ export const errorHandler = (error, req, res, next) => {
             error: 'unhandled error'
         })
     }
+}
+
+// mailer
+export const transport = nodemailer.createTransport({
+    service: 'gmail',
+    port: 587,
+    auth: {
+        user: gmailUser,
+        pass: gmailPass
+    }
+})
+
+export const generateRandomCode = (length) => {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let code = ''
+    for (let i = 0; i < length; i++) {
+        code += alphabet.charAt(Math.floor(Math.random() * alphabet.length))
+    }
+    return code
 }

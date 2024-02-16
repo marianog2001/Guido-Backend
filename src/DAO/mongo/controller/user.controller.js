@@ -1,9 +1,12 @@
 import userModel from '../models/user.model.js'
+import passwordResetModel from '../models/passwordReset.model.js'
+import { logger } from '../../../logger.js'
+import { createHash, passwordValidator } from '../../../utils.js'
 
 export default class Users {
 
     async checkExistence(email) {
-        await userModel.exists({ email: email}) ? true : false
+        await userModel.exists({ email: email }) ? true : false
     }
 
     async getUser(email) {
@@ -36,6 +39,47 @@ export default class Users {
         } catch (error) {
             console.error('Error getting user by ID : ' + error)
             return error
+        }
+    }
+
+    async startPasswordReset(email, resetCode) {
+        try {
+            const user = await userModel.findOne({ email: email })
+            if (!user) {
+                throw new Error('Email is not associated')
+            }
+            let passwordReset = new passwordResetModel({
+                userEmail: email,
+                resetCode: resetCode
+            })
+            await passwordReset.save()
+            return { success: true, result: passwordReset }
+        } catch (error) {
+            logger.error(error)
+            return error
+        }
+    }
+
+    async resetPassword(resetCode, newPassword) {
+        try {
+            const passwordReset = await passwordResetModel.findOne({ resetCode: resetCode })
+            if (!passwordReset) {
+                throw new Error('Reset code not found')
+            }
+            const user = await userModel.findOne({ email: passwordReset.userEmail })
+            if (!user) {
+                throw new Error('User not found')
+            }
+            if (passwordValidator(user, newPassword)) {
+                throw new Error('Cannot put the same password as the old one')
+            }
+            user.password = createHash(newPassword)
+            await user.save()
+            await passwordResetModel.deleteOne({ resetCode: resetCode })
+            return { success: true }
+        } catch (error) {
+            logger.error('Error in reset password function: ' + error)
+            throw error
         }
     }
 

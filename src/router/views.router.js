@@ -1,5 +1,5 @@
 import { Router } from 'express'
-
+import { logger } from '../logger.js'
 
 //adminCoder@coder.com
 //adminCod3r123)
@@ -10,7 +10,8 @@ const router = Router()
 
 
 
-router.get('/', async (req, res) => {
+router.get('/', (req, res) => {
+    logger.info(`Ruta ${req.url} metodo ${req.method} implementada`)
     return res.render('index')
 })
 

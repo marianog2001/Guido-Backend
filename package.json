@@ -28,6 +28,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node src/app.js",
     "tcss": "tailwindcss -i public/css/style.css -o public/css/styles.css --watch"
   },
   "author": "",

@@ -26,5 +26,13 @@ export class UserRepository {
         return result
     }
 
+    async startPasswordReset(email, resetCode) {
+        const result = await this.dao.startPasswordReset(email, resetCode)
+        return result
+    }
 
+    async resetPassword(resetCode, password) {
+        const result = await this.dao.resetPassword(resetCode, password)
+        return result
+    }
 }

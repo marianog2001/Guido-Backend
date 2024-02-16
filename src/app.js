@@ -20,68 +20,34 @@ import compression from 'express-compression'
 import { errorHandler } from './utils.js'
 import { addLogger, logger } from './logger.js'
 
-
-
 // express config
-
 const app = express()
 
 app.use(express.json())
-app.use(compression({ brotli: { enabled: true, zlib: {} } }))
 app.use(express.urlencoded({ extended: true }))
+app.use(compression({ brotli: { enabled: true, zlib: {} } }))
 app.use(errorHandler)
 app.use(cookieParser())
 app.use(addLogger)
 app.use(express.static(__dirname + '/public'))
 
-//-----------PASSPORT-----------
+// Passport
 initializePassport()
 app.use(passport.initialize())
-//----------------------------
 
-
-//-----------ROUTER-----------
-app.use('/', viewsRouter)
-
-app.use('/api/cart', cartRouter)
-
-app.use('/api/chat', chatRouter)
-
-app.use('/api/session', userRouter)
-
-app.use('/api/products', productsRouter)
-
-app.use('/mocks', mockRouter)
-
-//----------------------------
-
-
-//-----------SERVER-----------
-const httpServer = app.listen(port, () => { logger.info('SERVER RUNNING ON PORT: ' + port) })
-//----------------------------
-
-//-----------HANDLEBARS-----------
-
+// Handlebars
 app.engine('handlebars', engine({
     extname: 'handlebars',
     defaultLayout: 'main',
-    /* layoutsDir: __dirname + '/views/layouts',
-    partialsDir: __dirname + '/views/partials', */
 }))
 app.set('views', __dirname + '/views')
 app.set('view engine', 'handlebars')
-//----------------------------
 
-//-----------SOCKET.IO-----------
-
+// Socket.io
+const httpServer = app.listen(port, () => { logger.info('SERVER RUNNING ON PORT: ' + port) })
 export const io = new Server(httpServer)
-
 app.set('socketio', io)
-
 io.on('connection', async (socket) => {
-
-    /* logger.info('New client connected') */
-
     try {
         const messageLogs = await MessageService.getMessages()
         socket.emit('logs', messageLogs)
@@ -89,7 +55,6 @@ io.on('connection', async (socket) => {
         console.error('error fetching data: ' + error)
     }
     socket.on('emit message', async (newMessage) => {
-
         const result = await MessageService.createMessage(newMessage)
         io.emit('render message', result)
     })
@@ -98,25 +63,25 @@ io.on('connection', async (socket) => {
     })
 })
 
-//----------------------------
 
+// Ruta de prueba de logger
+app.get('/test', (req, res) => {
+    console.log(req.cookies)
+    res.send('ok!')
+})
 
-//handler de '/*' para que el response status 304 no impida la carga del root
+// Rutas
+
+app.use('/',viewsRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/chat', chatRouter)
+app.use('/api/session', userRouter)
+app.use('/api/products', productsRouter)
+app.use('/mocks', mockRouter)
+
+// Middleware para evitar el response status 304
 app.get('/*', function (req, res, next) {
     res.setHeader('Last-Modified', (new Date()).toUTCString())
     next()
 })
-
-//ruta de prueba de logger
-app.get('/test', (req, res) => {
-    console.log(req.cookies)
-    /* req.logger.debug('debug')
-    req.logger.http('http')
-    req.logger.info('info')
-    req.logger.warning('warn')
-    req.logger.error('error') */
-    res.send('ok!')
-})
-
-
 

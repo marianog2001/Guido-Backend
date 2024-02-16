@@ -1,2 +1,12 @@
-[object Object]
+
+[31merror[39m: Error in reset password / enter code router : TypeError: UserService.resetPassword is not a function
+[31merror[39m: Error in reset password function: TypeError: passwordReset.delete is not a function
+[31merror[39m: Error in reset password / enter code router : TypeError: passwordReset.delete is not a function
+[31merror[39m: Error in reset password function: TypeError: passwordReset.remove is not a function
+[31merror[39m: Error in reset password / enter code router : TypeError: passwordReset.remove is not a function
+[31merror[39m: password not valid
 [31merror[39m: [object Object]
+[31merror[39m: Error in reset password function: Error: Cannot put the same password as the old one
+[31merror[39m: Error in reset password / enter code router : Error: Cannot put the same password as the old one
+[31merror[39m: Error in reset password function: Error: Cannot put the same password as the old one
+[31merror[39m: Error in reset password / enter code router : Error: Cannot put the same password as the old one

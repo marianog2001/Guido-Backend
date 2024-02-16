@@ -12,5 +12,7 @@ const githubSecret = process.env.GITHUB_SECRET
 const jwtSecret = process.env.JWT_SECRET
 const persistence = process.env.PERSISTENCE
 const isInProduction = process.env.PRODUCTION_MODE
+const gmailUser = process.env.GMAIL_USER
+const gmailPass = process.env.GMAIL_PASS
 
-export { port, persistence, url, dbName, githubClientID, githubSecret, jwtSecret, isInProduction }
+export { port, persistence, url, dbName, githubClientID, githubSecret, jwtSecret, isInProduction, gmailUser, gmailPass }
