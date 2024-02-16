@@ -15,9 +15,9 @@ export class ProductRepository {
         return product
     }
 
-    async createProduct(product) {
-        const newProduct = new ProductInsertDTO(product)
-        const addedProduct = await this.dao.createProduct(newProduct)
+    async createProduct(product, user='admin') {
+        const newProduct = new ProductInsertDTO(product, user)
+        const addedProduct = await this.dao.createOneProduct(newProduct,user)
         return addedProduct
     }
 

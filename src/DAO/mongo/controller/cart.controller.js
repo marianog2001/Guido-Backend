@@ -1,5 +1,6 @@
 import CartModel from '../models/cart.model.js'
 import productModel from '../models/products.models.js'
+import { logger } from '../../../logger.js'  
 
 
 
@@ -15,9 +16,10 @@ export default class Carts {
         }
     }
 
-    async createCart(products = []) {
+    async createCart() {
         try {
-            let newCart = await CartModel.create(products)
+            let newCart = await CartModel.create({products : []})
+            // logger.debug(newCart)
             return newCart
         } catch (error) {
             return error

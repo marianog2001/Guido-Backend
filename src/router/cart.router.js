@@ -7,13 +7,13 @@ import passport from 'passport'
 const router = Router()
 
 
-//CREATE CART (WITH OR WITHOUT AN ITEM)
+//CREATE CART (WITHOUT AN ITEM)
 
 router.post('/', async (req, res) => {
     try {
-        const newCart = await CartService.createCart({products:[]})
+        const newCart = await CartService.createCart()
         console.log(newCart)
-        return res.status(200).json({ status: 'done', payload:newCart })
+        return res.status(200).json({ status: 'done', payload: newCart })
     }
     catch (error) {
         console.log('error creating cart: ' + error)
@@ -38,38 +38,40 @@ router.get('/:cid', async (req, res) => {
 
 //ADD ONE ELEMENT TO A CART
 
-router.post('/:cid/products/:pid', async (req, res) => {
-    try {
-        let cid = req.params.cid
-        let pid = req.params.pid
-        let quantity = parseInt(req.body?.quantity) ?? 1
+router.post('/:cid/products/:pid',
+    passport.authenticate('jwt', { session: false }),
+    async (req, res) => {
+        try {
+            let cid = req.params.cid
+            let pid = req.params.pid
+            let quantity = parseInt(req.body?.quantity) ?? 1
 
-        //checks if cart exists
-        let cart = await CartService.getCart(cid)
-        if (!cart) {
-            console.log('couldn\'t find cart')
-            return res.status(404).json({ message: 'Cart not found' })
+            //checks if cart exists
+            let cart = await CartService.getCart(cid)
+            if (!cart) {
+                console.log('couldn\'t find cart')
+                return res.status(404).json({ message: 'Cart not found' })
+            }
+            //checks if product exists
+            let product = await ProductService.getProducts(pid)
+            if (product.owner === req.user.user.email) {
+                return res.status(403).json({ message: 'you cannot add your own products to the cart' })
+            }
+            if (!product) {
+                console.log('couldn\'t find product')
+                return res.status(404).json({ message: 'Product not found' })
+            }
+
+            let result = await CartService.addProductToCart(cid, pid, quantity)
+
+            console.log(result)
+            return res.status(200).json({ status: 'success', payload: result })
+
+        } catch (e) {
+            console.error('an error ocurred trying to update the cart : ' + e)
+            return res.status(500).json({ message: 'server error.' })
         }
-
-        //checks if product exists
-        let product = await ProductService.getProducts(pid)
-        if (!product) {
-            console.log('couldn\'t find product')
-            return res.status(404).json({ message: 'Product not found' })
-        }
-
-
-
-        let result = await CartService.addProductToCart(cid, pid, quantity)
-
-        console.log(result)
-        return res.status(200).json({ status: 'success', payload: result })
-
-    } catch (e) {
-        console.error('an error ocurred trying to update the cart : ' + e)
-        return res.status(500).json({ message: 'server error.' })
     }
-}
 )
 
 //DELETE AN ENTIRE CART
@@ -114,8 +116,8 @@ router.put('/:cid/products/:pid', async (req, res) => {
         const newQuantity = parseInt(req.body.quantity)
         const cartToUpdate = await CartService.getCart(cid)
         if (!cartToUpdate) { return res.status(404).json({ message: 'cart not found' }) }
-        if (typeof(newQuantity) !== 'number') {return res.status(400).json({message:'invalid quantity provided'})}
-        if (ProductService.getOneProduct(pid).stock < newQuantity) {return res.status(409).json({message:'there is not enough stock'})}
+        if (typeof (newQuantity) !== 'number') { return res.status(400).json({ message: 'invalid quantity provided' }) }
+        if (ProductService.getOneProduct(pid).stock < newQuantity) { return res.status(409).json({ message: 'there is not enough stock' }) }
         let updatedCart = await CartService.updateCartProductQuantity(cid, pid, newQuantity)
         if (!updatedCart) { return res.status(404).json({ message: 'product not found' }) }
         return res.status(200).json({ updatedCart })
@@ -132,7 +134,7 @@ router.post('/:cid/purchase',
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
-            if (req.user.rol !== 'user') {return {message:'you are not authorized'}}
+            if (req.user.rol !== 'user') { return { message: 'you are not authorized' } }
             const cid = parseInt(req.params.cid)
             const userEmail = req.user.email
             const cart = await CartService.getCart(cid)

@@ -1,6 +1,8 @@
 import { ProductService } from '../repositories/index.js'
 import { Router } from 'express'
-import { isAdmin } from '../utils.js'
+import { isAdminOrPremium, isAdmin } from '../utils.js'
+import { logger } from '../logger.js'
+import passport from 'passport'
 
 const router = Router()
 
@@ -50,41 +52,52 @@ router.post('/',
         }
     })
 
-router.put('/:pid', async (req, res) => {
-    try {
-        const pid = parseInt(req.params.pid)
+router.put('/:pid',
+    passport.authenticate('jwt', { session: false }),
+    isAdminOrPremium,
+    async (req, res) => {
+        try {
+            const pid = req.params.pid
 
-        //this conditional is to make id unchangeable
-        if (req.body.id !== pid && req.body.id !== undefined) {
-            return res.status(404).json({ error: 'cant modify products id' })
+            //this conditional is to make id unchangeable
+            if (req.body.id !== pid && req.body.id !== undefined) {
+                return res.status(404).json({ error: 'cant modify products id' })
+            }
+
+
+            const updated = req.body
+            const productToUpdate = await ProductService.getOneProduct(pid)
+            if (productToUpdate.owner !== req.user.user.email || !req.user.user.role !== 'admin') return res.status(401).json({ error: 'unauthorized' })
+            if (!productToUpdate) {
+                return res.status(404).json({ error: 'no product matches that id' })
+            }
+
+            await ProductService.updateOneProduct(pid, updated)
+
+            const updatedProducts = await ProductService.getProducts()
+            req.app.get('socketio').emit('productsUpdate', updatedProducts)
+            res.status(200).json({ message: 'updating product' })
+        } catch (error) {
+            logger.error('Error on update product function : ' + error)
+            res.status(500).json({ message: error })
         }
+    })
 
-        const updated = req.body
-        const productToUpdate = await ProductService.getOneProduct(pid)
-        if (!productToUpdate) {
-            return res.status(404).json({ error: 'no product matches that id' })
+router.delete('/:pid',
+    passport.authenticate('jwt', { session: false }),
+    isAdmin,
+    async (req, res) => {
+        try {
+
+            let pid = req.params.pid
+            const productToDelete = await ProductService.getProducts(pid)
+            if (productToDelete.owner !== req.user.user.email || !req.user.user.role !== 'admin') return res.status(401).json({ error: 'unauthorized' })
+            await ProductService.deleteProduct(pid)
         }
-
-        await ProductService.updateOneProduct(pid, updated)
-
-        const updatedProducts = await ProductService.getProducts()
-        req.app.get('socketio').emit('productsUpdate', updatedProducts)
-        res.status(200).json({ message: 'updating product' })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: error })
-    }
-})
-
-router.delete('/:pid', async (req, res) => {
-    try {
-        let pid = parseInt(req.params.pid)
-        await ProductService.deleteOneProduct(pid)
-    }
-    catch (error) {
-        console.error(error)
-        return res.status(500).json({ message: error })
-    }
-})
+        catch (error) {
+            console.error(error)
+            return res.status(500).json({ message: error })
+        }
+    })
 
 export default router

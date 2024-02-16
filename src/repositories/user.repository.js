@@ -26,6 +26,8 @@ export class UserRepository {
         return result
     }
 
+    // RESET PASSWORD
+
     async startPasswordReset(email, resetCode) {
         const result = await this.dao.startPasswordReset(email, resetCode)
         return result
@@ -34,5 +36,11 @@ export class UserRepository {
     async resetPassword(resetCode, password) {
         const result = await this.dao.resetPassword(resetCode, password)
         return result
+    }
+
+    // PREMIUM 
+
+    async changePremium(id) {
+        await this.dao.changePremium(id)
     }
 }

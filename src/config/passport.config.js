@@ -34,14 +34,15 @@ const initializePassport = () => {
             }
 
             const newUserCart = await CartService.createCart()
-            logger.debug(newUserCart)
+        
+            logger.debug(newUserCart._id)
             const newUser = new UserInsertDTO({
                 first_name,
                 last_name,
                 email,
                 age,
                 password: createHash(password),
-                cartId: newUserCart.id
+                cartId: newUserCart._id
             })
 
             const result = await UserService.createUser(newUser)
@@ -123,13 +124,13 @@ const initializePassport = () => {
     passport.use('jwt', new JWTStrategy({
         jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([(req) => {
             const token = req?.cookies?.cookieJWT ?? null
-            
+
             return token
         }]),
         secretOrKey: jwtSecret,
-    }, (jwt_payload, done) => {
-        
-        done(null, jwt_payload)
+    }, (jwtPayload, done) => {
+
+        done(null, jwtPayload)
     }))
 
     // --------------------

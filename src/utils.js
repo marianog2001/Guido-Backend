@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import EErrors from './errors/enums.js'
 import { jwtSecret, gmailUser, gmailPass } from './environment.js'
 import nodemailer from 'nodemailer'
+import { logger } from './logger.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -30,11 +31,24 @@ export const generateToken = (user) => {
 }
 
 export const isAdmin = (req, res, next) => {
-    if (req.user.rol === 'admin') return next()
+    if (req.user.role === 'admin') return next()
+    else throw new Error('You are not an admin')
+}
+
+export const isPremium = (req, res, next) => {
+    if (req.user.user.role === 'premium') return next()
+    else throw new Error('You are not a premium user')
+}
+
+export const isAdminOrPremium = (req, res, next) => {
+    if (req.user.user.role === 'admin' || req.user.user.role === 'premium') return next()
+    else throw new Error('You are not an admin or premium user')
 }
 
 export const isUser = (req, res, next) => {
-    if (req.user.rol === 'user') return next()
+    if (req.user.user.role === 'user') return next()
+    else throw new Error('You are not a user')
+
 }
 
 

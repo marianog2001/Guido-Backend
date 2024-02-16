@@ -10,3 +10,5 @@
 [31merror[39m: Error in reset password / enter code router : Error: Cannot put the same password as the old one
 [31merror[39m: Error in reset password function: Error: Cannot put the same password as the old one
 [31merror[39m: Error in reset password / enter code router : Error: Cannot put the same password as the old one
+[31merror[39m: Error in change premium function: StrictPopulateError: Cannot populate path `cart` because it is not in your schema. Set the `strictPopulate` option to false to override.
+[31merror[39m: Error in premium add / remove router : StrictPopulateError: Cannot populate path `cart` because it is not in your schema. Set the `strictPopulate` option to false to override.

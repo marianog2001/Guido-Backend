@@ -1,6 +1,6 @@
 import passport from 'passport'
-import { UserService } from '../repositories/index.js'
-import { generateRandomCode, generateToken, transport } from '../utils.js'
+import { ProductService, UserService } from '../repositories/index.js'
+import { generateRandomCode, generateToken, isAdminOrPremium, transport } from '../utils.js'
 import { gmailUser } from '../environment.js'
 import { Router } from 'express'
 /* import CurrentInsertDTO from '../DTO/current.dto.js' */
@@ -119,4 +119,48 @@ router.post('/resetPassword/enterCode', async (req, res) => {
         res.status(500).send({ message: 'Error at reset password / enter code router ', error })
     }
 })
+
+// ------------- PREMIUM FEATURES -------------
+
+router.post('/premium/:uid', async (req, res) => {
+    try {
+        const { uid } = req.params
+        await UserService.changePremium(uid)
+        res.status(200).send({message:'success'})
+    } catch (error) {
+        logger.error('Error in premium add / remove router : ' + error)
+        res.status(500).send(error)
+    }
+
+})
+
+router.post('/test',
+    await passport.authenticate('jwt', { session: false }),
+    
+    async (req, res) => {
+        logger.debug(req.user)
+        res.send('ok')
+    }
+)
+
+router.post('/createProduct',
+    await passport.authenticate('jwt', { session: false }),
+    isAdminOrPremium,
+    async (req, res) => {
+
+        const newProduct = req.body
+        
+        const user = req.user.user.email
+        
+        try {
+            ProductService.createProduct(newProduct, user)
+            res.status(200).send({ message: 'Product created succesfully' })
+        }
+        catch (error) {
+            logger.error('Error in create product router : ' + error)
+            res.status(500).send({message:'An error ocurred creating the product'})
+        }
+    })
+
+
 export default router

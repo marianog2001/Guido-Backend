@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 
 const userCollection = 'users'
 
+const validRole = ['user', 'admin', 'premium']
+
 const userSchema = new mongoose.Schema({
     first_name: String,
     last_name: String,
@@ -11,18 +13,19 @@ const userSchema = new mongoose.Schema({
     },
     age: Number,
     password: String,
-    rol: {
+    role: {
         type: String,
+        enum: validRole,
         default: 'user'
     },
-    cart: {
+    cartId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'carts'
     }
 })
 
 userSchema.pre('findOne', function() {
-    this.populate('cart')
+    this.populate('cartId')
 })
 
 const userModel = new mongoose.model(userCollection, userSchema)

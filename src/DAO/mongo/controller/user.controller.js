@@ -42,6 +42,8 @@ export default class Users {
         }
     }
 
+    // RESET PASSWORD
+
     async startPasswordReset(email, resetCode) {
         try {
             const user = await userModel.findOne({ email: email })
@@ -71,6 +73,9 @@ export default class Users {
                 throw new Error('User not found')
             }
             if (passwordValidator(user, newPassword)) {
+
+                // NECESARIO CAMBIAR PARA QUE NO CORTE EL FLUJO DE LA APP
+
                 throw new Error('Cannot put the same password as the old one')
             }
             user.password = createHash(newPassword)
@@ -79,6 +84,29 @@ export default class Users {
             return { success: true }
         } catch (error) {
             logger.error('Error in reset password function: ' + error)
+            throw error
+        }
+    }
+
+    // PREMIUM FEATURES
+
+    async changePremium(id) {
+        try {
+            const user = await userModel.findById(id)
+            if (!user) {
+                throw new Error('User not found')
+            }
+            if (user.role === 'premium') {
+                user.role = 'user'
+            } else if (user.role === 'user') {
+                user.role = 'premium'
+            }
+
+            await user.save()
+
+            return
+        } catch (error) {
+            logger.error('Error in change premium function: ' + error)
             throw error
         }
     }

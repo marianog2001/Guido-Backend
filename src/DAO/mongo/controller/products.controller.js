@@ -38,7 +38,7 @@ export default class Products {
 
 
     async createOneProduct(newProduct) {
-        try {            
+        try {           
             const result = await productModel.create(newProduct)
             return result
         }
