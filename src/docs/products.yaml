@@ -1,0 +1,154 @@
+paths:
+  /api/products:
+    get:
+      summary: Obtiene una lista de productos según los parámetros proporcionados.
+      tags:
+        - products
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Cantidad máxima de productos a devolver (por defecto 10).
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Número de página a obtener (por defecto 1).
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Cadena de búsqueda para filtrar productos por nombre o descripción.
+        - in: query
+          name: sort
+          schema:
+            type: integer
+          description: Opción de clasificación de productos.
+        - in: query
+          name: stock
+          schema:
+            type: boolean
+          description: Indica si se deben filtrar solo productos en stock.
+        - in: query
+          name: cat
+          schema:
+            type: string
+          description: Categoría de productos a filtrar.
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Error interno del servidor
+    post:
+      summary: Crea un nuevo producto.
+      tags:
+        - products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                title:
+                  type: string
+                price:
+                  type: number
+                description:
+                  type: string
+                category:
+                  type: string
+                thumbnail:
+                  type: array
+                  contains: string url to images
+                code: string
+                stock: number
+                status: boolean
+                _id: objectId
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Error en la solicitud
+        '500':
+          description: Error interno del servidor
+  /api/products/{pid}:
+    get:
+      summary: Obtiene un producto por su ID.
+      tags:
+        - products
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: integer
+          required: true
+          description: ID del producto a obtener.
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Producto no encontrado
+        '500':
+          description: Error interno del servidor
+    put:
+      summary: Actualiza un producto existente por su ID.
+      tags:
+        - products
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: integer
+          required: true
+          description: ID del producto a actualizar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                title:
+                  type: string
+                price:
+                  type: number
+                description:
+                  type: string
+                category:
+                  type: string
+                thumbnail:
+                  type: array
+                  contains: string url to images
+                code: string
+                stock: number
+                status: boolean
+                _id: objectId
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: No autorizado
+        '404':
+          description: Producto no encontrado
+        '500':
+          description: Error interno del servidor
+    delete:
+      summary: Elimina un producto por su ID.
+      tags:
+        - products
+      parameters:
+        - in: path
+          name: pid
+          schema:
+            type: integer
+          required: true
+          description: ID del producto a eliminar.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: No autorizado
+        '500':
+          description: Error interno del servidor

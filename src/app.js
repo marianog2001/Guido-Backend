@@ -19,6 +19,8 @@ import compression from 'express-compression'
 
 import { errorHandler } from './utils.js'
 import { addLogger, logger } from './logger.js'
+import swaggerJSDoc from 'swagger-jsdoc'
+import SwaggerUiExpress from 'swagger-ui-express'
 
 // express config
 const app = express()
@@ -43,6 +45,21 @@ app.engine('handlebars', engine({
 app.set('views', __dirname + '/views')
 app.set('view engine', 'handlebars')
 
+// Swagger
+const swaggerOptions = {
+    definition:{
+        openapi: '3.0.1',
+        info: {
+            title: 'Documentacion API de Groove Market',
+            description: 'Tienda de instrumentos y accesorios musicales'
+        }
+    },
+    apis: [`${__dirname}/docs/*.yaml`]
+}
+console.log(__dirname)
+const specs = swaggerJSDoc(swaggerOptions)
+app.use('/apidocs', SwaggerUiExpress.serve, SwaggerUiExpress.setup(specs))
+
 // Socket.io
 const httpServer = app.listen(port, () => { logger.info('SERVER RUNNING ON PORT: ' + port) })
 export const io = new Server(httpServer)
@@ -55,8 +72,9 @@ io.on('connection', async (socket) => {
         console.error('error fetching data: ' + error)
     }
     socket.on('emit message', async (newMessage) => {
-        const result = await MessageService.createMessage(newMessage)
-        io.emit('render message', result)
+        await MessageService.createMessage(newMessage)
+        
+        io.emit('render message', newMessage)
     })
     socket.on('error', (error) => {
         console.error('Socket error: ' + error)
@@ -71,8 +89,22 @@ app.get('/test', (req, res) => {
 })
 
 // Rutas
+/* function verificarToken(req, res, next) {
+    const token = req.cookies.cookieJWT // Suponiendo que el token JWT está almacenado en una cookie llamada 'token'
+    console.log(req.cookies)
+    if (token) {
+        res.locals.auth = true
+        next()
+    }
+    else {
+        res.locals.auth = false
+        next()
+    }
+} */
 
-app.use('/',viewsRouter)
+app.use(passport.authenticate('jwt', { session: false }))
+
+app.use('/', viewsRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/chat', chatRouter)
 app.use('/api/session', userRouter)
@@ -80,8 +112,11 @@ app.use('/api/products', productsRouter)
 app.use('/mocks', mockRouter)
 
 // Middleware para evitar el response status 304
-app.get('/*', function (req, res, next) {
+/* app.get('/*', function (req, res, next) {
+    console.log(req.cookies)
     res.setHeader('Last-Modified', (new Date()).toUTCString())
     next()
-})
+}) */
+
+
 

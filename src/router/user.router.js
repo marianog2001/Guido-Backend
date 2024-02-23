@@ -57,8 +57,8 @@ router.get(
     '/current',
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
+        console.log(req.locals)
         const user = req.user
-        logger.debug(user)
         res.render('profile', user)
     }
 )

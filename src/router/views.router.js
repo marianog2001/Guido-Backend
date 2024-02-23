@@ -7,12 +7,9 @@ import { logger } from '../logger.js'
 
 const router = Router()
 
-
-
-
 router.get('/', (req, res) => {
     logger.info(`Ruta ${req.url} metodo ${req.method} implementada`)
-    return res.render('index')
+    return res.render('index', req.user)
 })
 
 router.get('/login', (req, res) => {
@@ -22,6 +19,8 @@ router.get('/login', (req, res) => {
 router.get('/register', (req, res) => {
     return res.render('register')
 })
+
+
 
 export default router
 

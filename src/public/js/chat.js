@@ -1,37 +1,38 @@
-console.log('chat connected')
-
 
 const socket = io()
 const chatBox = document.querySelector('#chatBox')
 const chatInput = document.querySelector('#chatInput')
-const username = prompt('set your username')
+const usernameInput = document.querySelector('#usernameInput')
+
 
 chatInput.addEventListener('keyup', (event) => {
     if (event.key === 'Enter' && chatInput.value.trim().length > 0) {
-        const newMessage = {author:username, message:chatInput.value}
+        let username = usernameInput.value || 'anon'
+        const newMessage = { author: username, message: chatInput.value }
         console.log(newMessage)
         socket.emit('emit message', newMessage)
         chatInput.value = ''
     }
 })
 
-socket.on('logs', messages => {                                    
+socket.on('logs', messages => {
     messages.docs.forEach(eachMessage => {
-        let {author, message} = eachMessage
+        let { author, message } = eachMessage
         const p = document.createElement('p')
-        p.innerHTML += `
+        p.textContent += `
         ${author}:${message}
-        <br>
+        
         `
-        chatBox.appendChild(p)  
+        chatBox.appendChild(p)
+        
     })
 
     socket.on('render message', async newMessage => {
-        let {author, message} = newMessage
+        let { author, message } = newMessage
         const p = document.createElement('p')
-        p.innerHTML += `
+        p.textContent += `
         ${author}:${message}
-        <br>
+        
         `
         chatBox.appendChild(p)
     })
