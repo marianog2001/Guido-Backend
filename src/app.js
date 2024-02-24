@@ -56,7 +56,7 @@ const swaggerOptions = {
     },
     apis: [`${__dirname}/docs/*.yaml`]
 }
-console.log(__dirname)
+
 const specs = swaggerJSDoc(swaggerOptions)
 app.use('/apidocs', SwaggerUiExpress.serve, SwaggerUiExpress.setup(specs))
 
@@ -89,20 +89,9 @@ app.get('/test', (req, res) => {
 })
 
 // Rutas
-/* function verificarToken(req, res, next) {
-    const token = req.cookies.cookieJWT // Suponiendo que el token JWT está almacenado en una cookie llamada 'token'
-    console.log(req.cookies)
-    if (token) {
-        res.locals.auth = true
-        next()
-    }
-    else {
-        res.locals.auth = false
-        next()
-    }
-} */
 
-app.use(passport.authenticate('jwt', { session: false }))
+
+
 
 app.use('/', viewsRouter)
 app.use('/api/cart', cartRouter)
