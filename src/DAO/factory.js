@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 
-import { persistence, url, dbName } from '../environment.js'
-import { logger } from '../logger.js'
+import { persistence, url, dbName } from '../services/environment.services.js'
+import { logger } from '../services/logger.services.js'
 import mongoose from 'mongoose'
 
 export let Products, Carts, Users, Messages, Tickets

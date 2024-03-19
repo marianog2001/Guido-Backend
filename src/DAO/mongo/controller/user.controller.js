@@ -1,7 +1,7 @@
 import userModel from '../models/user.model.js'
 import passwordResetModel from '../models/passwordReset.model.js'
-import { logger } from '../../../logger.js'
-import { createHash, passwordValidator } from '../../../utils.js'
+import { logger } from '../../../services/logger.services.js'
+import { createHash, passwordValidator } from '../../../services/auth.services.js'
 
 export default class Users {
 

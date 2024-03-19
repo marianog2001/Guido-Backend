@@ -1,10 +1,11 @@
 import passport from 'passport'
 import { ProductService, UserService } from '../repositories/index.js'
-import { generateRandomCode, generateToken, isAdminOrPremium, transport } from '../utils.js'
-import { gmailUser } from '../environment.js'
+import { generateToken, isAdminOrPremium } from '../services/auth.services.js'
+import { gmailUser } from '../services/environment.services.js'
+import {  generateRandomCode, transport } from '../services/mailer.services.js'
 import { Router } from 'express'
 /* import CurrentInsertDTO from '../DTO/current.dto.js' */
-import { logger } from '../logger.js'
+import { logger } from '../services/logger.services.js'
 
 
 

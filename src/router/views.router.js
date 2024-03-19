@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { logger } from '../logger.js'
+import { logger } from '../services/logger.services.js'
 
 //adminCoder@coder.com
 //adminCod3r123)

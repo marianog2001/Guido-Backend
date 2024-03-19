@@ -1,7 +1,7 @@
 import { ProductService } from '../repositories/index.js'
 import { Router } from 'express'
-import { isAdminOrPremium, isAdmin } from '../utils.js'
-import { logger } from '../logger.js'
+import { isAdminOrPremium, isAdmin } from '../services/auth.services.js'
+import { logger } from '../services/logger.services.js'
 import passport from 'passport'
 
 const router = Router()

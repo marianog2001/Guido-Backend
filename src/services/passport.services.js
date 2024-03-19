@@ -3,13 +3,13 @@ import passportJWT from 'passport-jwt'
 import local from 'passport-local'
 import GithubStrategy from 'passport-github2'
 
-import { createHash, passwordValidator, generateToken } from '../utils.js'
-import { logger } from '../logger.js'
+import { createHash, passwordValidator, generateToken } from './auth.services.js'
+import { logger } from './logger.services.js'
 import { UserService, CartService } from '../repositories/index.js'
 
 // env config
 
-import { githubClientID, githubSecret, jwtSecret } from '../environment.js'
+import { githubClientID, githubSecret, jwtSecret } from './environment.services.js'
 import UserInsertDTO from '../DTO/user.dto.js'
 
 

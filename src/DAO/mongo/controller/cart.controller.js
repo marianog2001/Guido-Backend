@@ -1,6 +1,6 @@
 import CartModel from '../models/cart.model.js'
 import productModel from '../models/products.models.js'
-import { logger } from '../../../logger.js'  
+import { logger } from '../../../services/logger.services.js'  
 
 
 
