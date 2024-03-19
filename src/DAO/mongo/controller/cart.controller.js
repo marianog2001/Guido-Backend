@@ -1,6 +1,6 @@
 import CartModel from '../models/cart.model.js'
 import productModel from '../models/products.models.js'
-import { logger } from '../../../services/logger.services.js'  
+import { logger } from '../../../services/logger.services.js'
 
 
 
@@ -12,6 +12,7 @@ export default class Carts {
             let cart = await CartModel.findById(cid).populate('products.product')
             return cart
         } catch (error) {
+            logger.error(error)
             return error
         }
     }
@@ -22,6 +23,7 @@ export default class Carts {
             // logger.debug(newCart)
             return newCart
         } catch (error) {
+            logger.error(error)
             return error
         }
     }
@@ -46,6 +48,7 @@ export default class Carts {
             return cart
 
         } catch (error) {
+            logger.error(error)
             return error
         }
     }
@@ -57,6 +60,7 @@ export default class Carts {
             await cart.save()
             return cart
         } catch (error) {
+            logger.error(error)
             return error
         }
     }
@@ -70,6 +74,7 @@ export default class Carts {
             }
             await cart.save()
         } catch (error) {
+            logger.error(error)
             return error
         }
     }
@@ -79,6 +84,7 @@ export default class Carts {
             cart.products = []
             await cart.save()
         } catch (error) {
+            logger.error(error)
             return error
         }
     }
@@ -93,6 +99,7 @@ export default class Carts {
             }
             return true
         } catch (error) {
+            logger.error(error)
             return error
         }
     }
@@ -110,6 +117,7 @@ export default class Carts {
             await cart.save()
             return price
         } catch (error) {
+            logger.error(error)
             return error
         }
     }

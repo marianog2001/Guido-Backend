@@ -17,7 +17,7 @@ export default class Users {
             }
             return user
         } catch (error) {
-            console.error('Error getting user : ' + error)
+            logger.error('Error getting user : ' + error)
             return error
         }
     }
@@ -27,7 +27,7 @@ export default class Users {
             let user = await userModel.create(newUser)
             return user
         } catch (error) {
-            console.error('Error creating user : ' + error)
+            logger.error('Error creating user : ' + error)
             return error
         }
     }
@@ -37,7 +37,17 @@ export default class Users {
             const user = await userModel.findById(id)
             return user
         } catch (error) {
-            console.error('Error getting user by ID : ' + error)
+            logger.error('Error getting user by ID : ' + error)
+            return error
+        }
+    }
+
+    async getUsers() {
+        try {
+            const users = await userModel.find()
+            return users
+        } catch (error) {
+            logger.error(error)
             return error
         }
     }

@@ -1,3 +1,4 @@
+import CurrentInsertDTO from '../DTO/current.dto.js'
 import UserInsertDTO from '../DTO/user.dto.js'
 
 export class UserRepository {
@@ -8,6 +9,12 @@ export class UserRepository {
     async getUser(email) {
         const user = await this.dao.getUser(email)
         return user
+    }
+
+    async getUsers() {
+        let rawUsers = await this.dao.getUsers()
+        let returnUsers = rawUsers.map(user => new CurrentInsertDTO(user))
+        return returnUsers
     }
 
     async getUserByID(id) {

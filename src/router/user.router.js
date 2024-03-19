@@ -2,7 +2,7 @@ import passport from 'passport'
 import { ProductService, UserService } from '../repositories/index.js'
 import { generateToken, isAdminOrPremium } from '../services/auth.services.js'
 import { gmailUser } from '../services/environment.services.js'
-import {  generateRandomCode, transport } from '../services/mailer.services.js'
+import { generateRandomCode, transport } from '../services/mailer.services.js'
 import { Router } from 'express'
 /* import CurrentInsertDTO from '../DTO/current.dto.js' */
 import { logger } from '../services/logger.services.js'
@@ -127,7 +127,7 @@ router.post('/premium/:uid', async (req, res) => {
     try {
         const { uid } = req.params
         await UserService.changePremium(uid)
-        res.status(200).send({message:'success'})
+        res.status(200).send({ message: 'success' })
     } catch (error) {
         logger.error('Error in premium add / remove router : ' + error)
         res.status(500).send(error)
@@ -137,7 +137,7 @@ router.post('/premium/:uid', async (req, res) => {
 
 router.post('/test',
     await passport.authenticate('jwt', { session: false }),
-    
+
     async (req, res) => {
         logger.debug(req.user)
         res.send('ok')
@@ -150,18 +150,26 @@ router.post('/createProduct',
     async (req, res) => {
 
         const newProduct = req.body
-        
+
         const user = req.user.user.email
-        
+
         try {
             ProductService.createProduct(newProduct, user)
             res.status(200).send({ message: 'Product created succesfully' })
         }
         catch (error) {
             logger.error('Error in create product router : ' + error)
-            res.status(500).send({message:'An error ocurred creating the product'})
+            res.status(500).send({ message: 'An error ocurred creating the product' })
         }
     })
+
+
+router.get('/getAllUsers',
+    async (req, res) => {
+        const payload = await UserService.getUsers()
+        return res.status(200).send(payload)
+    }
+)
 
 
 export default router
