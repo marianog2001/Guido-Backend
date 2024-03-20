@@ -19,7 +19,7 @@ export default class Carts {
 
     async createCart() {
         try {
-            let newCart = await CartModel.create({products : []})
+            let newCart = await CartModel.create({ products: [] })
             // logger.debug(newCart)
             return newCart
         } catch (error) {
@@ -94,7 +94,7 @@ export default class Carts {
             for (let i = 0; i < cart.products.length; i++) {
                 let product = await productModel.findById(cart.products[i].product)
                 if (product.stock < cart.products[i].quantity) {
-                    return false
+                    return { success: false, conflictingProduct: product.id }
                 }
             }
             return true
@@ -106,16 +106,45 @@ export default class Carts {
 
     async purchaseCart(cart) {
         try {
-            let price
-            for (let i = 0; i < cart.products.length; i++) {
-                let product = await productModel.findById(cart.products[i].product)
-                product.stock = product.stock - cart.products[i].quantity
-                price = + product.price * cart.products[i].quantity
-                await product.save()
-            }
+            let stockResponse = await this.checkStock(cart)
+            if (stockResponse !== true) return stockResponse
+
+            await this.discountStock(cart)
+
+            let totalAmount = await this.calculateTotalAmount(cart)
+
             await cart.cleanCart()
             await cart.save()
-            return price
+
+            return totalAmount
+
+        } catch (error) {
+            logger.error(error)
+            return error
+        }
+    }
+
+    async calculateTotalAmount(cart) {
+        try {
+            let total = 0
+            for (let index = 0; index < cart.products.length; index++) {
+                total = (await productModel.findById(cart.products[index].product) * cart.products[index].quantity)
+                return total
+            }
+        } catch (error) {
+            logger.error(error)
+            return error
+        }
+    }
+
+    async discountStock(cart) {
+        try {
+            for (let index = 0; index < cart.products.length; index++) {
+                let productToDiscount = await productModel.findById(cart.products[index].product)
+                productToDiscount.stock = - cart.products[index].quantity
+                await productToDiscount.save()
+                continue
+            }
         } catch (error) {
             logger.error(error)
             return error

@@ -4,7 +4,7 @@ import { engine } from 'express-handlebars'
 import { Server } from 'socket.io'
 import cookieParser from 'cookie-parser'
 import initializePassport from './services/passport.services.js'
-import __dirname from './services/folder.services.js'
+import __dirname from './folder.services.js'
 
 import cartRouter from './router/cart.router.js'
 import chatRouter from './router/chat.router.js'
@@ -106,6 +106,8 @@ app.use('/mocks', mockRouter)
     res.setHeader('Last-Modified', (new Date()).toUTCString())
     next()
 }) */
+
+
 
 
 

@@ -22,13 +22,17 @@ router.get('/register', (req, res) => {
     return res.render('register')
 })
 
+router.get('/checkout', (req, res) => {
+    return res.render('checkout')
+})
+
 function verificarToken(req, res, next) {
     const token = req.cookies.cookieJWT || null
-    
+
     if (token) {
-        
+
         res.locals.auth = true
-        
+
         next()
     }
     else {

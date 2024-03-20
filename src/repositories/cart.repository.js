@@ -47,4 +47,9 @@ export class CartRepository {
         return result
     }
 
+    async calculateTotalAmount(cart) {
+        const result = await this.dao.calculateTotalAmount(cart)
+        return result
+    }
+
 }
