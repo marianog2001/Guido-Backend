@@ -2,7 +2,12 @@
 const stripe = Stripe('pk_test_51Ow8pIRwV5TrntSwZriQGFmoa2gO4I8Vp1Z6qfo3UmF1vTwTxRDXsU7gBQJea5tuzT1gD0n0j9D7qFyOq2aHUQRA009DSzDfpV')
 
 // The items the customer wants to buy
-const items = [{ id: 'xl-tshirt' }]
+// checkout.js
+let user
+window.addEventListener('load', function () {
+    const req = window.parent.req
+    user = req.user
+})
 
 let elements
 
@@ -15,10 +20,10 @@ document
 
 // Fetches a payment intent and captures the client secret
 async function initialize() {
-    const response = await fetch('/create-payment-intent', {
+    const response = await fetch('/payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify(user.cartId),
     })
     const { clientSecret } = await response.json()
 

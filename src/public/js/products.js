@@ -1,25 +1,18 @@
 console.log('script connected')
 /* const socket = io() */
-searchInput = document.querySelector('#searchInput')
-sortOptionSelect = document.querySelector('#sortOptionSelect')
-
+let searchInput = document.querySelector('#searchInput')
+let sortOptionSelect = document.querySelector('#sortOptionSelect')
+let addToCartButtons = document.querySelectorAll('.addToCart')
 
 
 searchInput.addEventListener('keyup', (event) => {
     if (event.key === 'Enter' && searchInput.value.trim().length > 0) {
-        console.log('/api/products/?search='+ searchInput.value)
+        console.log('/api/products/?search=' + searchInput.value)
         window.location.href = '/api/products/?search=' + searchInput.value
     }
 })
 
-/* ascButton.addEventListener('click', () => {
-    let url = new URL(window.location.href)
-    url.searchParams.set('sort', 1)
-    console.log(url.searchParams)
-    window.location.href = url.toString()
-}) */
-
-sortOptionSelect.addEventListener('change' , () => {
+sortOptionSelect.addEventListener('change', () => {
     let url = new URL(window.location.href)
     const selectedOptionValue = sortOptionSelect.value
     url.searchParams.set('sort', selectedOptionValue)
@@ -39,6 +32,24 @@ const changePageButton = (page) => {
     console.log(url.toString())
 }
 
-/* socket.on('productsUpdate', () => {
-    window.location.reload()
-}) */
+addToCartButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        e.preventDefault()
+        let user = JSON.parse(localStorage.getItem('user'))
+        if (!user) { window.location.href = '/register'}
+        let productId = button.dataset.id
+        console.log(user)
+        //console.log(button.dataset.id)
+    }
+    )
+})
+
+/* const addToCart = (productId, cartId) => {
+    console.log(cartId)
+    if (cartId === undefined) {
+        console.log('hola')
+
+    }
+    console.log(productId, cartId)
+} */
+
