@@ -5,7 +5,7 @@ export default class UserInsertDTO {
         this.email = user.email //required
         this.age = user?.age ?? 0
         this.password = user.password //required
-        this.rol = user?.role ?? 'user'
-        this.cartId = user?.cartId ?? ''
+        this.role = user?.role ?? 'user'
+        this.cartId = user?.cartId
     }
 }

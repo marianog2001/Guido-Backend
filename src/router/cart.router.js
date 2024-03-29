@@ -1,6 +1,7 @@
 import { ProductService, CartService, TicketService } from '../repositories/index.js'
 import { Router } from 'express'
 import passport from 'passport'
+import { verifyToken } from '../services/auth.services.js'
 /* import cartModel from '../DAO/mongo/models/cart.model.js' */
 
 
@@ -8,7 +9,7 @@ const router = Router()
 
 
 //CREATE CART (WITHOUT AN ITEM)
-
+/* 
 router.post('/', async (req, res) => {
     try {
         const newCart = await CartService.createCart()
@@ -21,6 +22,27 @@ router.post('/', async (req, res) => {
     }
 }
 )
+
+router.post('/add-to-cart',
+    verifyToken,
+    async (req, res) => {
+        try {
+            const productId = req.body.productId
+            const cartId = res.locals.user.user.cartId._id
+            console.log(cartId)
+            const url = `${cartId}/products/${productId}`
+            try {
+                let response = await fetch(url, {
+                    method: 'POST'
+                })
+                console.log(response)
+            } catch (err) {
+                console.log(err)
+            }
+
+        }
+        catch (error) { return error }
+    })
 
 //SEE CART
 router.get('/:cid', async (req, res) => {
@@ -149,6 +171,25 @@ router.post('/:cid/purchase',
             return res.status(200).json({ status: 'success', payload: ticket })
         } catch (error) {
             return error
+        }
+    }
+) */
+
+router.post('/add-to-cart',
+    /* passport.authenticate('jwt', { session: false }), */
+    async (req, res) => {
+        try {
+            const productId = req.body.productId
+            /* const cartId = req.user.user.cartId._id */
+            console.log(productId)
+            /* if (!cartId) {
+                console.log('Cart Id not found')
+                return res.status(404).send({ error: 'Cart not found' })
+            }
+            CartService.addProductToCart(productId, cartId) */
+        } catch (error) {
+            console.error(error)
+            return res.status(500).json({ error })
         }
     }
 )

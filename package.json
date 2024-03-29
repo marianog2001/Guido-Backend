@@ -35,7 +35,7 @@
     "dev": "nodemon src/app.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "tcss": "tailwindcss -i public/css/style.css -o public/css/styles.css --watch"
+    "tcss": "tailwindcss -i src/public/css/style.css -o src/public/css/styles.css --watch"
   },
   "author": "",
   "license": "ISC",

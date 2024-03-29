@@ -12,3 +12,7 @@
 [31merror[39m: Error in reset password / enter code router : Error: Cannot put the same password as the old one
 [31merror[39m: Error in change premium function: StrictPopulateError: Cannot populate path `cart` because it is not in your schema. Set the `strictPopulate` option to false to override.
 [31merror[39m: Error in premium add / remove router : StrictPopulateError: Cannot populate path `cart` because it is not in your schema. Set the `strictPopulate` option to false to override.
+[31merror[39m: Cannot convert object to primitive value
+[31merror[39m: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "carts" {"kind":"ObjectId","path":"_id","reason":{},"stringValue":"\"[object Object]\"","value":"[object Object]","valueType":"string"}
+[31merror[39m: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "carts" {"kind":"ObjectId","path":"_id","reason":{},"stringValue":"\"[object Object]\"","value":"[object Object]","valueType":"string"}
+[31merror[39m: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "carts" {"kind":"ObjectId","path":"_id","reason":{},"stringValue":"\"[object Object]\"","value":"[object Object]","valueType":"string"}

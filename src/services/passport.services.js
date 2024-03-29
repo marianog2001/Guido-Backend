@@ -3,7 +3,7 @@ import passportJWT from 'passport-jwt'
 import local from 'passport-local'
 import GithubStrategy from 'passport-github2'
 
-import { createHash, passwordValidator, generateToken } from './auth.services.js'
+import { createHash, passwordValidator, generateToken, verifyToken } from './auth.services.js'
 import { logger } from './logger.services.js'
 import { UserService, CartService } from '../repositories/index.js'
 
@@ -34,7 +34,7 @@ const initializePassport = () => {
             }
 
             const newUserCart = await CartService.createCart()
-        
+
             logger.debug(newUserCart._id)
             const newUser = new UserInsertDTO({
                 first_name,
@@ -59,19 +59,21 @@ const initializePassport = () => {
         { usernameField: 'email' },
         async (username, password, done) => {
             try {
-                /* logger.debug(username + '    -- ' + password) */
-                const user = await UserService.getUser(username)
-                /* const user = await UserController.getUser(username) */
-                logger.debug(user)
+
                 if (!UserService.checkExistence(username)) {
                     logger.error('user doesnt exist!')
                     return done(null, false)
                 }
 
+                const user = await UserService.getUser(username)
+
                 if (!passwordValidator(user, password)) {
                     logger.error('password not valid')
-                    return done(null, false)
+                    return done(new Error('password not valid'), false)
                 }
+
+                const token = generateToken(user)
+                user.token = token
 
                 return done(null, user)
             } catch (error) {
@@ -121,25 +123,29 @@ const initializePassport = () => {
 
     //JWT
 
-    passport.use('jwt', new JWTStrategy({
-        jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([(req) => {
-            const token = req?.cookies?.cookieJWT ?? null
+    passport.use('jwt',
+        new JWTStrategy(
+            {
+                jwtFromRequest: passportJWT.ExtractJwt.fromExtractors([(req) => {
+                    const token = req?.cookies?.cookieJWT ?? null
+                    return token
+                }
+                ]),
+                secretOrKey: jwtSecret,
+            },
 
-            return token
-        }]),
-        secretOrKey: jwtSecret,
-    }, (jwtPayload, done) => {
+            (jwtPayload, done) => {
+                // Verificar si jwtPayload es válido
+                /* if (!jwtPayload) {
+                    return done(null, false, { message: 'Token inválido' })
+                } */
+                // Si el token es válido, pasa el usuario autenticado
+                
+                return done(null , jwtPayload)
+            }
+        ))
 
-        done(null, jwtPayload)
-    }))
-
-    // --------------------
-
-
-
-
-
-
+    // Serialization
     passport.serializeUser((user, done) => {
         done(null, user._id)
     })

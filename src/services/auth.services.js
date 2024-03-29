@@ -36,3 +36,16 @@ export const isUser = (req, res, next) => {
     else throw new Error('You are not a user')
 
 }
+
+export const verifyToken = async (req, res, next) => {
+    const token = req.cookies.cookieJWT || null
+    if (token) {
+        res.locals.user = jwt.decode(token)
+        res.locals.auth = true
+        next()
+    }
+    else {
+        res.locals.auth = false
+        next()
+    }
+}

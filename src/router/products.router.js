@@ -1,30 +1,32 @@
 import { ProductService } from '../repositories/index.js'
 import { Router } from 'express'
-import { isAdminOrPremium, isAdmin } from '../services/auth.services.js'
+import { isAdminOrPremium, isAdmin, verifyToken } from '../services/auth.services.js'
 import { logger } from '../services/logger.services.js'
 import passport from 'passport'
 
 const router = Router()
 
 
-router.get('/', async (req, res) => {
-    try {
-        let limit = parseInt(req.query?.limit ?? 10)
-        let page = parseInt(req.query?.page ?? 1)
-        let searchQuery = req.query?.search ?? null
-        let sortQuery = parseInt(req.query?.sort) ?? null
-        let stockQuery = (req.query?.stock === 'true') ?? null
-        let categoryQuery = (req.query?.cat ?? '').replace(/_/g, ' ') ?? null
+router.get('/',
+    verifyToken,
+    async (req, res) => {
+        try {
+            let limit = parseInt(req.query?.limit ?? 10)
+            let page = parseInt(req.query?.page ?? 1)
+            let searchQuery = req.query?.search ?? null
+            let sortQuery = parseInt(req.query?.sort) ?? null
+            let stockQuery = (req.query?.stock === 'true') ?? null
+            let categoryQuery = (req.query?.cat ?? '').replace(/_/g, ' ') ?? null
 
-        const result = await ProductService.getProducts(limit, page, searchQuery, sortQuery, stockQuery, categoryQuery)
+            const result = await ProductService.getProducts(limit, page, searchQuery, sortQuery, stockQuery, categoryQuery)
+            return res.status(200).render('products', result)
 
-        return res.status(200).render('products', result)
-
-    }
-    catch (e) {
-        return res.send('an error ocurred:' + e)
-    }
-})
+        }
+        catch (e) {
+            logger.error(e)
+            return res.send('an error ocurred:' + e)
+        }
+    })
 
 router.get('/:pid', async (req, res) => {
     try {

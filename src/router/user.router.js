@@ -17,7 +17,7 @@ import { logger } from '../services/logger.services.js'
 const router = Router()
 
 router.get('/logout', async (req, res) => {
-    res.cookie.destroy('cookieJWT').send()
+    res.clearCookie('cookieJWT').redirect('/')
 })
 
 router.post('/login',
@@ -58,9 +58,8 @@ router.get(
     '/current',
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
-        console.log(req.locals)
         const user = req.user
-        res.render('profile', user)
+        return res.status(200).json(user)
     }
 )
 

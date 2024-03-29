@@ -6,6 +6,7 @@ export default class CurrentInsertDTO {
         this.last_name = user?.last_name ?? ''
         this.email = user.email 
         this.age = user?.age ?? null
-        this.rol = user.rol || user.role
+        this.role = user.role ?? 'user'
+        this.cartId = user?.cartId
     }
 }

@@ -33,23 +33,23 @@ const changePageButton = (page) => {
 }
 
 addToCartButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
+    button.addEventListener('click', async (e) => {
         e.preventDefault()
-        let user = JSON.parse(localStorage.getItem('user'))
-        if (!user) { window.location.href = '/register'}
         let productId = button.dataset.id
-        console.log(user)
-        //console.log(button.dataset.id)
+        const response = await fetch('/api/cart/add-to-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId })
+        })
+        if (response.ok) {
+            // Manejar la respuesta según sea necesario
+            console.log('Producto añadido al carrito')
+        } else {
+            console.error('Error al añadir producto al carrito:', response.statusText)
+        }
     }
     )
 })
-
-/* const addToCart = (productId, cartId) => {
-    console.log(cartId)
-    if (cartId === undefined) {
-        console.log('hola')
-
-    }
-    console.log(productId, cartId)
-} */
 
