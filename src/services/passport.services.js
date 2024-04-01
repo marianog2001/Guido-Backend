@@ -136,9 +136,9 @@ const initializePassport = () => {
 
             (jwtPayload, done) => {
                 // Verificar si jwtPayload es válido
-                /* if (!jwtPayload) {
+                if (!jwtPayload) {
                     return done(null, false, { message: 'Token inválido' })
-                } */
+                }
                 // Si el token es válido, pasa el usuario autenticado
                 
                 return done(null , jwtPayload)

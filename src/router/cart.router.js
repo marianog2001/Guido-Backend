@@ -176,17 +176,16 @@ router.post('/:cid/purchase',
 ) */
 
 router.post('/add-to-cart',
-    /* passport.authenticate('jwt', { session: false }), */
+    passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
+
+            
             const productId = req.body.productId
-            /* const cartId = req.user.user.cartId._id */
-            console.log(productId)
-            /* if (!cartId) {
-                console.log('Cart Id not found')
-                return res.status(404).send({ error: 'Cart not found' })
-            }
-            CartService.addProductToCart(productId, cartId) */
+            const cartId = req.user.user.cartId._id
+            
+            
+            CartService.addProductToCart(cartId, productId) 
         } catch (error) {
             console.error(error)
             return res.status(500).json({ error })

@@ -13,7 +13,7 @@ import { logger } from '../services/logger.services.js'
 //adminCoder@coder.com
 //adminCod3r123)
 
-
+const expiresInMilliseconds = 172800000 // 2 days
 const router = Router()
 
 router.get('/logout', async (req, res) => {
@@ -29,7 +29,7 @@ router.post('/login',
     async (req, res) => {
         const user = req.user
         const token = generateToken(user)
-        res.cookie('cookieJWT', token)
+        res.cookie('cookieJWT', token, { expires: new Date(Date.now() + expiresInMilliseconds), httpOnly: true })
         return res.redirect('/')
     }
 )
@@ -73,7 +73,7 @@ router.get('/github/callback', async (req, res) => {
     if (!req.user) {
         return res.status(500).send({ message: 'invalid github' })
     }
-    res.cookie('cookieJWT', req.user.token)
+    res.cookie('cookieJWT', req.user.token, { expires: new Date(Date.now() + expiresInMilliseconds), httpOnly: true })
     return res.redirect
 })
 

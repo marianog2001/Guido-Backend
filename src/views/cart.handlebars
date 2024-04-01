@@ -2,13 +2,21 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
+        <title>Cart Page</title>
     </head>
     <body>
-        <div class="flex">
-            <div><img src="" alt="" /></div>
-            <div></div>
-            <div></div>
-        </div>
+        <h1>Carrito de compras</h1>
+    {{#if cartProducts.[0] }}
+        <ul>
+            {{#each cartProducts}}
+                <li>
+                    Producto: {{this.product.title}}
+                    Cantidad: {{this.quantity}}
+                </li>
+            {{/each}}
+        </ul>
+    {{else}}
+        <p>No hay productos en el carrito</p>
+    {{/if}}
     </body>
 </html>

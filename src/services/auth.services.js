@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { jwtSecret } from './environment.services.js'
+import passport from 'passport'
 
 export const createHash = (password) => {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
@@ -40,7 +41,6 @@ export const isUser = (req, res, next) => {
 export const verifyToken = async (req, res, next) => {
     const token = req.cookies.cookieJWT || null
     if (token) {
-        res.locals.user = jwt.decode(token)
         res.locals.auth = true
         next()
     }
@@ -48,4 +48,26 @@ export const verifyToken = async (req, res, next) => {
         res.locals.auth = false
         next()
     }
+}
+
+export const handleAuth = (req, res, next) => {
+    passport.authenticate('jwt', { session: false }, (err, user) => {
+        // Si hay un error, pasa el error al siguiente middleware
+        if (err) {
+            console.log('handleAuth error')
+            return next(err)
+        }
+        // Si no hay usuario, es decir, no está autenticado, maneja la respuesta unauthorized
+        if (!user) {
+            console.log('no user present')
+            res.locals.auth = false
+            return next()
+        }
+        // Si el usuario está autenticado, establece req.user y pasa al siguiente middleware
+        console.log('estable auth')
+        res.locals.auth = true
+        res.locals.user = user
+        next()
+    })(req, res, next)
+
 }

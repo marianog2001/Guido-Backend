@@ -29,7 +29,7 @@ export default class Carts {
     }
 
 
-    async addProductToCart(cid, pid) {
+    async addProductToCart(cid, pid, quantity) {
         try {
             let cart = await CartModel.findOne({ _id: cid })
 
@@ -40,7 +40,7 @@ export default class Carts {
                 // if the product is not in the cart, add it
                 const newProduct = {
                     product: pid,
-                    quantity: 1
+                    quantity
                 }
                 cart.products.push(newProduct)
             }

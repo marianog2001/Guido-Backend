@@ -38,16 +38,25 @@ initializePassport()
 app.use(passport.initialize())
 
 // Handlebars
+
+
 app.engine('handlebars', engine({
     extname: 'handlebars',
     defaultLayout: 'main',
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+        allowProtoMethodsByDefault: true,
+        allowProtoGettersAndSetters: true,
+        allowProtoDecorators: true
+    }
 }))
+
 app.set('views', __dirname + '/views')
 app.set('view engine', 'handlebars')
 
 // Swagger
 const swaggerOptions = {
-    definition:{
+    definition: {
         openapi: '3.0.1',
         info: {
             title: 'Documentacion API de Groove Market',
@@ -73,7 +82,7 @@ io.on('connection', async (socket) => {
     }
     socket.on('emit message', async (newMessage) => {
         await MessageService.createMessage(newMessage)
-        
+
         io.emit('render message', newMessage)
     })
     socket.on('error', (error) => {

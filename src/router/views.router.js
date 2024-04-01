@@ -1,7 +1,6 @@
 import { Router } from 'express'
-import { logger } from '../services/logger.services.js'
-import { verifyToken } from '../services/auth.services.js'
-import passport from 'passport'
+import { CartService } from '../repositories/index.js'
+import { handleAuth } from '../services/auth.services.js'
 
 //adminCoder@coder.com
 //adminCod3r123)
@@ -10,11 +9,12 @@ import passport from 'passport'
 const router = Router()
 
 router.get('/',
-    passport.authenticate('jwt', { session: false }),
+    handleAuth,
     async (req, res) => {
-        console.log(req.user.user)
+
         return res.render('index', req.user)
     })
+
 
 
 router.get('/login', (req, res) => {
@@ -26,29 +26,28 @@ router.get('/register', (req, res) => {
 })
 
 router.get('/profile',
+    handleAuth,
     async (req, res) => {
-        const url = new URL('http://127.0.0.1:8080/api/session/current')
-        /* console.log(url) */
-        const user = await fetch(url, {
-            method: 'GET',
-            credentials: 'include' // Incluir cookies del navegador en la solicitud
-        })
-        console.log(user)
-        return res.render('profile', user)
+        console.log(res.locals)
+        return res.render('profile', req.user)
     }
 )
 
 router.get('/cart',
-    verifyToken,
+    handleAuth,
     async (req, res) => {
-        let cartProducts = res.locals.user.user.cartId.products
-
-        return res.render('cart', cartProducts)
+        let cartId, cart
+        if (res.locals.auth) {
+            cartId = res.locals.user.user.cartId._id
+            cart = await CartService.getCart(cartId)
+        }
+        console.log(cart.products)
+        return res.render('cart', { cartProducts: cart.products })
     }
 )
 
 router.get('/checkout',
-    verifyToken,
+    handleAuth,
     (req, res) => {
         return res.render('checkout')
     })

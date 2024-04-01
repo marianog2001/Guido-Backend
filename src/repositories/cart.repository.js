@@ -18,6 +18,7 @@ export class CartRepository {
     }
 
     async addProductToCart(cid, pid, quantity) {
+        if (!quantity) {quantity = 1}
         const result = await this.dao.addProductToCart(cid, pid, quantity)
         return result
     }
