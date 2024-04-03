@@ -42,7 +42,7 @@ router.get('/cart',
             cart = await CartService.getCart(cartId)
         }
         console.log(cart.products)
-        return res.render('cart', { cartProducts: cart.products })
+        return res.render('cart', { cartProducts: cart.products, cartId: cartId })
     }
 )
 

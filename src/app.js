@@ -11,6 +11,7 @@ import chatRouter from './router/chat.router.js'
 import productsRouter from './router/products.router.js'
 import userRouter from './router/user.router.js'
 import viewsRouter from './router/views.router.js'
+import paymentRouter from './router/payment.router.js'
 import mockRouter from './router/mock.router.js'
 
 import { port } from './services/environment.services.js'
@@ -107,6 +108,8 @@ app.use('/api/cart', cartRouter)
 app.use('/api/chat', chatRouter)
 app.use('/api/session', userRouter)
 app.use('/api/products', productsRouter)
+app.use('/api/payments', paymentRouter)
+
 app.use('/mocks', mockRouter)
 
 // Middleware para evitar el response status 304

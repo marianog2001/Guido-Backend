@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import { CartService } from '../repositories'
+import { CartService } from '../repositories/index.js'
 import PaymentService from '../services/payment.services.js'
 import passport from 'passport'
 
 const router = Router()
 
-router.post('/payment-intent',
+router.post('/create-payment-intent',
     passport.authenticate('jwt', {session: false}),
     async (req, res) => {
         const { cartId } = req.body

@@ -14,5 +14,6 @@ const persistence = process.env.PERSISTENCE
 const isInProduction = process.env.PRODUCTION_MODE
 const gmailUser = process.env.GMAIL_USER
 const gmailPass = process.env.GMAIL_PASS
+const stripeKey = process.env.STRIPE_KEY
 
-export { port, persistence, url, dbName, githubClientID, githubSecret, jwtSecret, isInProduction, gmailUser, gmailPass }
+export { port, persistence, url, dbName, githubClientID, githubSecret, jwtSecret, isInProduction, gmailUser, gmailPass, stripeKey }

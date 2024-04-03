@@ -21,7 +21,7 @@
     "session-file-store": "^1.5.0",
     "shortid": "^2.2.16",
     "socket.io": "^4.7.2",
-    "stripe": "^14.21.0",
+    "stripe": "^14.23.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "winston": "^3.11.0"
