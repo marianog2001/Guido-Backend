@@ -1,20 +1,20 @@
-// This is a public sample test API key.
-// Don’t submit any personally identifiable information in requests made with this key.
-// Sign in to see your own test API key embedded in code samples.
-
+// This is your test publishable API key.
 const stripe = Stripe('pk_test_51Ow8pIRwV5TrntSwZriQGFmoa2gO4I8Vp1Z6qfo3UmF1vTwTxRDXsU7gBQJea5tuzT1gD0n0j9D7qFyOq2aHUQRA009DSzDfpV')
 
 // The items the customer wants to buy
+const items = [{ id: 'xl-tshirt' }]
 
 let elements
 
+initialize()
+checkStatus()
 
 document
     .querySelector('#payment-form')
     .addEventListener('submit', handleSubmit)
 
 // Fetches a payment intent and captures the client secret
-async function initialize(items) {
+async function initialize() {
     const response = await fetch('/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -25,8 +25,8 @@ async function initialize(items) {
     const appearance = {
         theme: 'stripe',
     }
-    var elements = stripe.elements({ appearance, clientSecret })
-    console.log(elements)
+    elements = stripe.elements({ appearance, clientSecret })
+
     const paymentElementOptions = {
         layout: 'tabs',
     }
@@ -37,7 +37,8 @@ async function initialize(items) {
 
 async function handleSubmit(e) {
     e.preventDefault()
-    console.log(elements)
+    setLoading(true)
+
     const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -57,6 +58,7 @@ async function handleSubmit(e) {
         showMessage('An unexpected error occurred.')
     }
 
+    setLoading(false)
 }
 
 // Fetches the payment intent status after payment submission
@@ -91,12 +93,26 @@ async function checkStatus() {
 
 function showMessage(messageText) {
     const messageContainer = document.querySelector('#payment-message')
-  
+
     messageContainer.classList.remove('hidden')
     messageContainer.textContent = messageText
-  
+
     setTimeout(function () {
         messageContainer.classList.add('hidden')
         messageContainer.textContent = ''
     }, 4000)
+}
+
+// Show a spinner on payment submission
+function setLoading(isLoading) {
+    if (isLoading) {
+        // Disable the button and show a spinner
+        document.querySelector('#submit').disabled = true
+        document.querySelector('#spinner').classList.remove('hidden')
+        document.querySelector('#button-text').classList.add('hidden')
+    } else {
+        document.querySelector('#submit').disabled = false
+        document.querySelector('#spinner').classList.add('hidden')
+        document.querySelector('#button-text').classList.remove('hidden')
+    }
 }

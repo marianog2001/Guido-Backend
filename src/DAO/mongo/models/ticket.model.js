@@ -18,7 +18,15 @@ const ticketSchema = new mongoose.Schema({
     price:Number,
     purchase_datetime: Date,
     purchaser:String,
-
+    status: {
+        type:String,
+        enum: ['cancelled', 'pending', 'completed'],
+        default: 'pending'
+    },
+    paymentIntent : {
+        type: String,
+        required: true
+    }
 })
 
 /* ticketSchema.plugin(mongoosePaginate) */

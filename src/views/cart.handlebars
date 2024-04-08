@@ -1,45 +1,70 @@
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Cart Page</title>
-    </head>
-    <body>
-        <h1>Cart</h1>
-        {{#if cartProducts.[0]}}
-            <ul>
-                {{#each cartProducts}}
-                    <li>
-                        Product:
-                        {{this.product.title}}
-                        |||||||| Quantity:
-                        {{this.quantity}}
-                    </li>
-                {{/each}}
-            </ul>
-            <form id="payment-form">
-                <div id="payment-element">
-                    <!--Stripe.js injects the Payment Element-->
-                </div>
-                <button id="submit" data-cartId="{{cartId}}">
-                    <div class="spinner hidden" id="spinner"></div>
-                    <span id="button-text">Pay now</span>
-                </button>
-                <div id="payment-message" class="hidden"></div>
-            </form>
-        {{else}}
-            <p>Your cart is empty</p>
-        {{/if}}
 
-        <!-- Importa el script de Stripe -->
-        <script src="https://js.stripe.com/v3/"></script>
-        <!-- Importa tu archivo checkout.js -->
-        <script src="/js/checkout.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() { const
-            cartProducts = JSON.stringify({{cartProducts}}); initialize(cartProducts); checkStatus();});
-        </script>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cart Page</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
 
-    </body>
+<body>
+    <h1>Cart</h1>
+    {{#if cartProducts.[0]}}
+    <ul>
+        {{#each cartProducts}}
+        <li>
+            Product:
+            {{this.product.title}}
+            |||||||| Quantity:
+            {{this.quantity}}
+        </li>
+        {{/each}}
+    </ul>
+
+    <button id="submit">
+        <b>Pay now</b>
+    </button>
+
+    {{else}}
+    <p>Your cart is empty</p>
+    {{/if}}
+
+    <script>
+        let stripe = Stripe('pk_test_51Ow8pIRwV5TrntSwZriQGFmoa2gO4I8Vp1Z6qfo3UmF1vTwTxRDXsU7gBQJea5tuzT1gD0n0j9D7qFyOq2aHUQRA009DSzDfpV');
+
+        const createPaymentIntent = async () => {
+
+            let amount = parseInt("{{ cartTotal }}")
+            console.log('create payment intent button triggered')
+            try {
+                const response = await fetch('/api/payments/create-payment-intent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: amount,
+                        currency: 'usd'
+                    })
+                });
+
+                const data = await response.json();
+
+                sessionStorage.setItem('stripeClientSecret', data.client_secret);
+
+                window.location.href = "/checkout"
+
+            } catch (err) {
+                console.log('CREATE PAYMENT INTENT IN <SCRIPT> ERROR');
+                console.error(err);
+            }
+        }
+
+        document.getElementById('submit').addEventListener('click', createPaymentIntent)
+
+    </script>
+
+
+</body>
 
 </html>

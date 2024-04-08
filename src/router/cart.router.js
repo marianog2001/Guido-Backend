@@ -1,15 +1,12 @@
 import { ProductService, CartService, TicketService } from '../repositories/index.js'
 import { Router } from 'express'
 import passport from 'passport'
-import { verifyToken } from '../services/auth.services.js'
-/* import cartModel from '../DAO/mongo/models/cart.model.js' */
 
 
 const router = Router()
 
 
 //CREATE CART (WITHOUT AN ITEM)
-/* 
 router.post('/', async (req, res) => {
     try {
         const newCart = await CartService.createCart()
@@ -23,26 +20,6 @@ router.post('/', async (req, res) => {
 }
 )
 
-router.post('/add-to-cart',
-    verifyToken,
-    async (req, res) => {
-        try {
-            const productId = req.body.productId
-            const cartId = res.locals.user.user.cartId._id
-            console.log(cartId)
-            const url = `${cartId}/products/${productId}`
-            try {
-                let response = await fetch(url, {
-                    method: 'POST'
-                })
-                console.log(response)
-            } catch (err) {
-                console.log(err)
-            }
-
-        }
-        catch (error) { return error }
-    })
 
 //SEE CART
 router.get('/:cid', async (req, res) => {
@@ -150,42 +127,58 @@ router.put('/:cid/products/:pid', async (req, res) => {
 }
 )
 
-//cambiar a middleware
-
+// PURCHASE
 router.post('/:cid/purchase',
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
-            if (req.user.rol !== 'user') { return { message: 'you are not authorized' } }
-            const cid = parseInt(req.params.cid)
-            const userEmail = req.user.email
+            if (req.user.role !== 'user' || req.user.role !== 'premium') {
+                return { message: 'you are not authorized' }
+            }
+
+            const cid = req.params.cid
+            const userEmail = req.user.user.email
+
+            if (!userEmail) {
+                throw new Error('user email is required')
+            }
+
             const cart = await CartService.getCart(cid)
+
             if (!cart) {
                 return res.status(404).json({ message: 'cart not found' })
             }
+
             if (!CartService.checkStock(cart)) {
                 return res.status(400).json({ message: 'not enough stock' })
             }
-            const price = await CartService.purchaseCart(cid)
-            const ticket = await TicketService.createTicket(price, userEmail, cart.products)
+
+            const { paymentIntent } = req.query
+
+            const price = await CartService.getTotalPrice(cart)
+
+            const ticket = await TicketService.createTicket(price, userEmail, cart.products, paymentIntent)
+
+            await CartService.purchaseCart(cart)
             return res.status(200).json({ status: 'success', payload: ticket })
         } catch (error) {
             return error
         }
     }
-) */
+)
 
+// ADD TO CART
 router.post('/add-to-cart',
     passport.authenticate('jwt', { session: false }),
     async (req, res) => {
         try {
 
-            
+
             const productId = req.body.productId
             const cartId = req.user.user.cartId._id
-            
-            
-            CartService.addProductToCart(cartId, productId) 
+
+
+            CartService.addProductToCart(cartId, productId)
         } catch (error) {
             console.error(error)
             return res.status(500).json({ error })

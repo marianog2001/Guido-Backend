@@ -43,13 +43,13 @@ export class CartRepository {
         return result
     }
 
-    async purchaseCart(cart) {
-        const result = await this.dao.purchaseCart(cart)
+    async purchaseCart(cart, user, paymentIntent) {
+        const result = await this.dao.purchaseCart(cart, user, paymentIntent)
         return result
     }
 
-    async calculateTotalAmount(cart) {
-        const result = await this.dao.calculateTotalAmount(cart)
+    async getTotalPrice(cart) {
+        const result = await this.dao.getTotalPrice(cart)
         return result
     }
 

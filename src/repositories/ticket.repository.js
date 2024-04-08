@@ -5,9 +5,14 @@ export class TicketRepository {
         this.dao = dao
     }
 
-    async createTicket(price, userEmail, productsBought) {
-        const ticket = new TicketInsertDTO(price, userEmail, productsBought)
+    async createTicket(price, userEmail, productsBought, paymentIntent) {
+        const ticket = new TicketInsertDTO(price, userEmail, productsBought, paymentIntent)
         await this.dao.createTicket(ticket)
+        return ticket
+    }
+
+    async updateTicketStatus(code, status) {
+        const ticket = await this.dao.updateTicketStatus(code, status)
         return ticket
     }
 }

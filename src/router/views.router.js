@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { CartService } from '../repositories/index.js'
+import { CartService, TicketService } from '../repositories/index.js'
 import { handleAuth } from '../services/auth.services.js'
 
 //adminCoder@coder.com
@@ -36,13 +36,13 @@ router.get('/profile',
 router.get('/cart',
     handleAuth,
     async (req, res) => {
-        let cartId, cart
+        let cartId, cartTotal, cart
         if (res.locals.auth) {
             cartId = res.locals.user.user.cartId._id
             cart = await CartService.getCart(cartId)
-        }
-        console.log(cart.products)
-        return res.render('cart', { cartProducts: cart.products, cartId: cartId })
+            cartTotal = await CartService.getTotalPrice(cart)
+        } else { res.redirect('/login') }
+        return res.render('cart', { cartProducts: cart.products, cartId: cartId, cartTotal: cartTotal })
     }
 )
 
@@ -50,6 +50,13 @@ router.get('/checkout',
     handleAuth,
     (req, res) => {
         return res.render('checkout')
+    })
+
+router.get('/order-confirmation', handleAuth,
+    async (req, res) => {
+        const {paymentConfirmation} = req.query
+        const ticket = await TicketService.updateTicketStatus(paymentConfirmation)
+        return res.render('order-confirmation', ticket)
     })
 
 

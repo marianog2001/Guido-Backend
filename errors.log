@@ -16,3 +16,9 @@
 [31merror[39m: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "carts" {"kind":"ObjectId","path":"_id","reason":{},"stringValue":"\"[object Object]\"","value":"[object Object]","valueType":"string"}
 [31merror[39m: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "carts" {"kind":"ObjectId","path":"_id","reason":{},"stringValue":"\"[object Object]\"","value":"[object Object]","valueType":"string"}
 [31merror[39m: Cast to ObjectId failed for value "[object Object]" (type string) at path "_id" for model "carts" {"kind":"ObjectId","path":"_id","reason":{},"stringValue":"\"[object Object]\"","value":"[object Object]","valueType":"string"}
+[31merror[39m: Cannot read properties of null (reading 'products')
+[31merror[39m: Cannot read properties of null (reading 'products')
+[31merror[39m: Error getting user : Error: User not found
+[31merror[39m: Error getting user : Error: User not found
+[31merror[39m: Error getting user : Error: User not found
+[31merror[39m: Error getting user : Error: User not found
