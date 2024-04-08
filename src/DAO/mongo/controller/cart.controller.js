@@ -1,7 +1,7 @@
 import CartModel from '../models/cart.model.js'
 import productModel from '../models/products.models.js'
 import { logger } from '../../../services/logger.services.js'
-import { TicketService } from '../../../repositories/index.js'
+/* import { TicketService } from '../../../repositories/index.js' */
 
 
 
@@ -80,16 +80,6 @@ export default class Carts {
         }
     }
 
-    async cleanCart(cart) {
-        try {
-            cart.products = []
-            await cart.save()
-        } catch (error) {
-            logger.error(error)
-            return error
-        }
-    }
-
     async checkStock(cart) {
         try {
             for (let i = 0; i < cart.products.length; i++) {
@@ -105,21 +95,17 @@ export default class Carts {
         }
     }
 
-    async purchaseCart(cart, user, paymentIntent) {
+    async purchaseCart(cart) {
         try {
             let stockResponse = await this.checkStock(cart)
             if (stockResponse !== true) return stockResponse
 
             await this.discountStock(cart)
+            console.log(cart)
+            cart.products = []
+            cart.save()
 
-            let price = await this.getPrice(cart)
-
-            await TicketService.createTicket(price, user.user.email, cart.products, paymentIntent)
-
-            await cart.cleanCart()
-            await cart.save()
-
-            return null
+            return {success: true}
 
         } catch (error) {
             console.error(error)

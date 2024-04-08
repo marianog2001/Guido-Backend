@@ -56,7 +56,7 @@ router.get('/order-confirmation', handleAuth,
     async (req, res) => {
         const {paymentConfirmation} = req.query
         const ticket = await TicketService.updateTicketStatus(paymentConfirmation)
-        return res.render('order-confirmation', ticket)
+        return res.render('orderConfirmation', ticket)
     })
 
 
