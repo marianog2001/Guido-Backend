@@ -59,6 +59,13 @@ router.get('/order-confirmation', handleAuth,
         return res.render('orderConfirmation', ticket)
     })
 
+router.get('/error',
+    handleAuth,
+    async (req, res) => {
+        const {error} = req.body
+        return res.render('error', error)
+    }
+)
 
 export default router
 

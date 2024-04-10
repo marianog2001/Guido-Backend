@@ -7,27 +7,25 @@
     <script src="https://js.stripe.com/v3/"></script>
 </head>
 
-<body>
-    <h1>Cart</h1>
-    {{#if cartProducts.[0]}}
-    <ul>
-        {{#each cartProducts}}
-        <li>
-            Product:
-            {{this.product.title}}
-            |||||||| Quantity:
-            {{this.quantity}}
-        </li>
-        {{/each}}
-    </ul>
+<body class="bg-gray-100">
+    <div class="container mx-auto mt-10">
+        <h1 class="text-3xl font-semibold text-center mb-6">Shopping Cart</h1>
+        {{#if cartProducts.[0]}}
+        <ul class="divide-y divide-gray-200">
+            {{#each cartProducts}}
+            <li class="py-4 flex items-center justify-between">
+                <span class="text-lg"><b>{{this.product.title}}</b></span>
+                <span class="text-gray-600">Quantity: {{this.quantity}}</span>
+            </li>
+            {{/each}}
+        </ul>
 
-    <button id="submit">
-        <b>Pay now</b>
-    </button>
+        <button id="submit" class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full max-w-xs mx-auto block">Pay now</button>
 
-    {{else}}
-    <p>Your cart is empty</p>
-    {{/if}}
+        {{else}}
+        <p class="text-center text-gray-500 mt-6">Your cart is empty</p>
+        {{/if}}
+    </div>
 
     <script>
         let stripe = Stripe('pk_test_51Ow8pIRwV5TrntSwZriQGFmoa2gO4I8Vp1Z6qfo3UmF1vTwTxRDXsU7gBQJea5tuzT1gD0n0j9D7qFyOq2aHUQRA009DSzDfpV');
@@ -63,7 +61,6 @@
         document.getElementById('submit').addEventListener('click', createPaymentIntent)
 
     </script>
-
 
 </body>
 

@@ -1,6 +1,5 @@
 import userModel from '../models/user.model.js'
 import passwordResetModel from '../models/passwordReset.model.js'
-import { logger } from '../../../services/logger.services.js'
 import { createHash, passwordValidator } from '../../../services/auth.services.js'
 
 export default class Users {
@@ -17,7 +16,7 @@ export default class Users {
             }
             return user
         } catch (error) {
-            logger.error('Error getting user : ' + error)
+            console.error('Error getting user : ' + error)
             return error
         }
     }
@@ -27,7 +26,7 @@ export default class Users {
             let user = await userModel.create(newUser)
             return user
         } catch (error) {
-            logger.error('Error creating user : ' + error)
+            console.error('Error creating user : ' + error)
             return error
         }
     }
@@ -37,7 +36,7 @@ export default class Users {
             const user = await userModel.findById(id)
             return user
         } catch (error) {
-            logger.error('Error getting user by ID : ' + error)
+            console.error('Error getting user by ID : ' + error)
             return error
         }
     }
@@ -47,7 +46,7 @@ export default class Users {
             const users = await userModel.find()
             return users
         } catch (error) {
-            logger.error(error)
+            console.error(error)
             return error
         }
     }
@@ -67,7 +66,7 @@ export default class Users {
             await passwordReset.save()
             return { success: true, result: passwordReset }
         } catch (error) {
-            logger.error(error)
+            console.error(error)
             return error
         }
     }
@@ -93,7 +92,7 @@ export default class Users {
             await passwordResetModel.deleteOne({ resetCode: resetCode })
             return { success: true }
         } catch (error) {
-            logger.error('Error in reset password function: ' + error)
+            console.error('Error in reset password function: ' + error)
             throw error
         }
     }
@@ -116,7 +115,7 @@ export default class Users {
 
             return
         } catch (error) {
-            logger.error('Error in change premium function: ' + error)
+            console.error('Error in change premium function: ' + error)
             throw error
         }
     }

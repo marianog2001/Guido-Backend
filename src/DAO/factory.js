@@ -1,19 +1,18 @@
 /* eslint-disable no-case-declarations */
 
 import { persistence, url, dbName } from '../services/environment.services.js'
-import { logger } from '../services/logger.services.js'
 import mongoose from 'mongoose'
 
 export let Products, Carts, Users, Messages, Tickets
 
-logger.info('Persistence using: ' + persistence)
+console.log('Persistence using: ' + persistence)
 
 switch (persistence) {
 case 'MONGO':
 
     await mongoose.connect(url, { dbName })
         .then(() => {
-            logger.info('DATABASE connected succesfully')
+            console.log('DATABASE connected succesfully')
         })
         .catch(
             (error) => {

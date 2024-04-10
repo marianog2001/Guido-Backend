@@ -1,6 +1,7 @@
 import { ProductService, CartService, TicketService } from '../repositories/index.js'
 import { Router } from 'express'
 import passport from 'passport'
+import { handleAuth } from '../services/auth.services.js'
 
 
 const router = Router()
@@ -129,38 +130,42 @@ router.put('/:cid/products/:pid', async (req, res) => {
 
 // PURCHASE
 router.post('/:cid/purchase',
-    passport.authenticate('jwt', { session: false }),
+    handleAuth,
     async (req, res) => {
         try {
+            if (!req.user) {
+                return res.redirect(403, '/error').json({ error: 'You must log in or register before buying' })
+            }
             if (req.user.role !== 'user' || req.user.role !== 'premium') {
-                return { message: 'you are not authorized' }
+                return res.redirect(403, '/error').json({ error: 'An admin account can\'t buy' })
             }
 
+            //informacion de usuario
             const cid = req.params.cid
             const userEmail = req.user.user.email
 
-            if (!userEmail) {
-                throw new Error('user email is required')
-            }
-
+            //se trae el carrito
             const cart = await CartService.getCart(cid)
 
             if (!cart) {
-                return res.status(404).json({ message: 'cart not found' })
+                return res.status(404).redirect('/error').json({ error: 'cart not found' })
             }
 
-            if (!CartService.checkStock(cart)) {
-                return res.status(400).json({ message: 'not enough stock' })
+            let stockResponse = await CartService.checkStock(cart)
+
+            if (stockResponse !== true) {
+                // modificar cart para cumplir la expectativa
+                return res.render('cartStockConflict', stockResponse)
             }
 
             const { paymentIntent } = req.query
 
-            const price = await CartService.getTotalPrice(cart)
-
-            const ticket = await TicketService.createTicket(price, userEmail, cart.products, paymentIntent)
+            const ticket = await TicketService.createTicket(cart, userEmail, paymentIntent)
 
             await CartService.purchaseCart(cart)
+
             return res.status(200).json({ status: 'success', payload: ticket })
+
         } catch (error) {
             return error
         }
@@ -173,12 +178,12 @@ router.post('/add-to-cart',
     async (req, res) => {
         try {
 
-
             const productId = req.body.productId
             const cartId = req.user.user.cartId._id
 
+            await CartService.addProductToCart(cartId, productId)
+            return res.status(200).json({ status: 'success' })
 
-            CartService.addProductToCart(cartId, productId)
         } catch (error) {
             console.error(error)
             return res.status(500).json({ error })

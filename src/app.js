@@ -19,7 +19,6 @@ import { MessageService } from './repositories/index.js'
 import compression from 'express-compression'
 
 import { errorHandler } from './services/errorHandler.services.js'
-import { addLogger, logger } from './services/logger.services.js'
 import swaggerJSDoc from 'swagger-jsdoc'
 import SwaggerUiExpress from 'swagger-ui-express'
 
@@ -31,7 +30,6 @@ app.use(express.urlencoded({ extended: true }))
 app.use(compression({ brotli: { enabled: true, zlib: {} } }))
 app.use(errorHandler)
 app.use(cookieParser())
-app.use(addLogger)
 app.use(express.static(__dirname + '/public'))
 
 // Passport
@@ -71,7 +69,7 @@ const specs = swaggerJSDoc(swaggerOptions)
 app.use('/apidocs', SwaggerUiExpress.serve, SwaggerUiExpress.setup(specs))
 
 // Socket.io
-const httpServer = app.listen(port, () => { logger.info('SERVER RUNNING ON PORT: ' + port) })
+const httpServer = app.listen(port, () => { console.log('SERVER RUNNING ON PORT: ' + port) })
 export const io = new Server(httpServer)
 app.set('socketio', io)
 io.on('connection', async (socket) => {
@@ -92,16 +90,7 @@ io.on('connection', async (socket) => {
 })
 
 
-// Ruta de prueba de logger
-app.get('/test', (req, res) => {
-    console.log(req.cookies)
-    res.send('ok!')
-})
-
 // Rutas
-
-
-
 
 app.use('/', viewsRouter)
 app.use('/api/cart', cartRouter)
@@ -111,14 +100,6 @@ app.use('/api/products', productsRouter)
 app.use('/api/payments', paymentRouter)
 
 app.use('/mocks', mockRouter)
-
-// Middleware para evitar el response status 304
-/* app.get('/*', function (req, res, next) {
-    console.log(req.cookies)
-    res.setHeader('Last-Modified', (new Date()).toUTCString())
-    next()
-}) */
-
 
 
 

@@ -1,7 +1,6 @@
 import { ProductService } from '../repositories/index.js'
 import { Router } from 'express'
 import { isAdminOrPremium, isAdmin, verifyToken } from '../services/auth.services.js'
-import { logger } from '../services/logger.services.js'
 import passport from 'passport'
 
 const router = Router()
@@ -23,7 +22,7 @@ router.get('/',
 
         }
         catch (e) {
-            logger.error(e)
+            console.error(e)
             return res.send('an error ocurred:' + e)
         }
     })
@@ -80,7 +79,7 @@ router.put('/:pid',
             req.app.get('socketio').emit('productsUpdate', updatedProducts)
             res.status(200).json({ message: 'updating product' })
         } catch (error) {
-            logger.error('Error on update product function : ' + error)
+            console.error('Error on update product function : ' + error)
             res.status(500).json({ message: error })
         }
     })

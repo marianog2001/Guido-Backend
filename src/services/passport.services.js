@@ -3,8 +3,7 @@ import passportJWT from 'passport-jwt'
 import local from 'passport-local'
 import GithubStrategy from 'passport-github2'
 
-import { createHash, passwordValidator, generateToken, verifyToken } from './auth.services.js'
-import { logger } from './logger.services.js'
+import { createHash, passwordValidator, generateToken } from './auth.services.js'
 import { UserService, CartService } from '../repositories/index.js'
 
 // env config
@@ -29,13 +28,12 @@ const initializePassport = () => {
         try {
 
             if (await UserService.checkExistence(email)) {
-                logger.error('user already exists')
+                console.error('user already exists')
                 return done(null, false, { message: ' user already exists ' })
             }
 
             const newUserCart = await CartService.createCart()
 
-            logger.debug(newUserCart._id)
             const newUser = new UserInsertDTO({
                 first_name,
                 last_name,
@@ -61,14 +59,14 @@ const initializePassport = () => {
             try {
 
                 if (!UserService.checkExistence(username)) {
-                    logger.error('user doesnt exist!')
+                    console.error('user doesnt exist!')
                     return done(null, false)
                 }
 
                 const user = await UserService.getUser(username)
 
                 if (!passwordValidator(user, password)) {
-                    logger.error('password not valid')
+                    console.error('password not valid')
                     return done(new Error('password not valid'), false)
                 }
 
@@ -87,7 +85,6 @@ const initializePassport = () => {
         clientSecret: githubSecret,
         callbackURL: 'http://127.0.0.1:8080/api/session/githubcallback',
     }, async (accessToken, refreshToken, profile, done) => {
-        logger.debug(profile)
 
         try {
             const user = await UserService.getUser({ email: profile._json.email })
