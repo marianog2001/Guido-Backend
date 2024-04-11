@@ -14,13 +14,23 @@
         <ul class="divide-y divide-gray-200">
             {{#each cartProducts}}
             <li class="py-4 flex items-center justify-between">
-                <span class="text-lg"><b>{{this.product.title}}</b></span>
-                <span class="text-gray-600">Quantity: {{this.quantity}}</span>
+                <div class="">
+
+                    <img src={{this.product.thumbnail.[0]}} alt="" class="h-[30vh]">
+                    <span class="text-lg"><b>{{this.product.title}}</b></span>
+
+                </div>
+
+                <span class="text-gray-600"><b>Quantity: {{this.quantity}}</b></span>
+
+                <span class="text-red-500"><button><b>X</b></button></span>
             </li>
             {{/each}}
         </ul>
 
-        <button id="submit" class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full max-w-xs mx-auto block">Pay now</button>
+        <button id="submit"
+            class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full max-w-xs mx-auto block">Pay
+            now</button>
 
         {{else}}
         <p class="text-center text-gray-500 mt-6">Your cart is empty</p>
