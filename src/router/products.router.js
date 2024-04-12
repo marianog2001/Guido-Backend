@@ -1,13 +1,13 @@
 import { ProductService } from '../repositories/index.js'
 import { Router } from 'express'
-import { isAdminOrPremium, isAdmin, verifyToken } from '../services/auth.services.js'
+import { isAdminOrPremium, isAdmin, handleAuth } from '../services/auth.services.js'
 import passport from 'passport'
 
 const router = Router()
 
 
 router.get('/',
-    verifyToken,
+    handleAuth,
     async (req, res) => {
         try {
             let limit = parseInt(req.query?.limit ?? 10)

@@ -53,13 +53,15 @@ export default class Carts {
     }
 
 
-    async deleteProductFromCart(cart, pid) {
+    async deleteProductFromCart(cid, pid) {
         try {
+            let cart = await CartModel.findById(cid)
             let productIndex = cart.products.findIndex(item => item.product.toString() === pid)
             if (productIndex !== -1) {
                 cart.products.splice(productIndex, 1)
             }
             await cart.save()
+            return cart
         } catch (error) {
             console.error(error)
             return error

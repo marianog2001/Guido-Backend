@@ -13,20 +13,19 @@
         {{#if cartProducts.[0]}}
         <ul class="divide-y divide-gray-200">
             {{#each cartProducts}}
-            <li class="py-4 flex items-center justify-between">
-                <div class="">
-
+            <li id="{{this.product._id}}" class="py-4 flex items-center justify-between">
+                <div class="flex items-center">
                     <img src={{this.product.thumbnail.[0]}} alt="" class="h-[30vh]">
                     <span class="text-lg"><b>{{this.product.title}}</b></span>
-
                 </div>
 
                 <span class="text-gray-600"><b>Quantity: {{this.quantity}}</b></span>
 
-                <span class="text-red-500"><button><b>X</b></button></span>
+                <span class="text-red-500"><button onclick="deleteItemFromCart('{{this.product._id}}')">X</button></span>
             </li>
             {{/each}}
         </ul>
+
 
         <button id="submit"
             class="mt-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full max-w-xs mx-auto block">Pay
@@ -39,7 +38,6 @@
 
     <script>
         let stripe = Stripe('pk_test_51Ow8pIRwV5TrntSwZriQGFmoa2gO4I8Vp1Z6qfo3UmF1vTwTxRDXsU7gBQJea5tuzT1gD0n0j9D7qFyOq2aHUQRA009DSzDfpV');
-
         const createPaymentIntent = async () => {
 
             let amount = parseInt("{{ cartTotal }}")
@@ -65,6 +63,32 @@
             } catch (err) {
                 console.log('CREATE PAYMENT INTENT IN <SCRIPT> ERROR');
                 console.error(err);
+            }
+        }
+
+        const deleteItemFromCart = async (productId) => {
+            console.log('delete item from cart button triggered')
+            try {
+                const cartId = "{{ cartId }}"
+                console.log(cartId, ' --------------------------------', productId)
+              /* */ const response = await fetch(`/api/cart/${cartId}/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                let elementToRemove = document.getElementById(productId);
+                if (elementToRemove) {
+                    elementToRemove.remove();
+                } else {
+                    console.error("Element with ID " + productId + " not found.");
+                }
+                console.log('hasta aca se llego')
+                return console.log(response.payload)
+            } catch (err) {
+                console.log('DELETE ITEM FROM CART IN <SCRIPT> ERROR');
+                console.error(err);
+                window.location.href = '/error'
             }
         }
 

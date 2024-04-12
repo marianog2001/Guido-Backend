@@ -1,6 +1,6 @@
-import { ProductService, CartService, TicketService } from '../repositories/index.js'
 import { Router } from 'express'
 import passport from 'passport'
+import { CartService, ProductService, TicketService } from '../repositories/index.js'
 import { handleAuth } from '../services/auth.services.js'
 
 
@@ -78,7 +78,7 @@ router.post('/:cid/products/:pid',
 
 router.delete('/:cid', async (req, res) => {
     try {
-        const cid = parseInt(req.params.cid)
+        const cid = req.params.cid
         const cartToDelete = await CartService.getCart(cid)
         if (!cartToDelete) { return res.status(404).json({ message: 'cart not found' }) }
         const emptyCart = await CartService.deleteCart(cid)
@@ -94,13 +94,13 @@ router.delete('/:cid', async (req, res) => {
 
 router.delete(('/:cid/products/:pid'), async (req, res) => {
     try {
-        const cid = parseInt(req.params.cid)
-        const pid = parseInt(req.params.pid)
+        const cid = req.params.cid
+        const pid = req.params.pid
         const cart = await CartService.getCart(cid)
         if (!cart) { return res.status(404).json({ message: 'cart not found' }) }
-        await CartService.deleteElementFromCart(cid, pid)
+        const response = await CartService.deleteProductFromCart(cid, pid)
 
-        return res.status(200).json({ message: 'product succesfully removed' })
+        return res.status(200).json({ message: 'product succesfully removed', payload: response })
     } catch (e) {
         console.error('an error occurred while trying to delete the cart : ' + e)
     }
@@ -111,8 +111,8 @@ router.delete(('/:cid/products/:pid'), async (req, res) => {
 
 router.put('/:cid/products/:pid', async (req, res) => {
     try {
-        const cid = parseInt(req.params.cid)
-        const pid = parseInt(req.params.pid)
+        let cid = req.params.cid;
+        let pid = req.params.pid;
         const newQuantity = parseInt(req.body.quantity)
         const cartToUpdate = await CartService.getCart(cid)
         if (!cartToUpdate) { return res.status(404).json({ message: 'cart not found' }) }
