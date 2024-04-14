@@ -64,7 +64,6 @@ router.post('/:cid/products/:pid',
 
             let result = await CartService.addProductToCart(cid, pid, quantity)
 
-            console.log(result)
             return res.status(200).json({ status: 'success', payload: result })
 
         } catch (e) {
@@ -111,19 +110,28 @@ router.delete(('/:cid/products/:pid'), async (req, res) => {
 
 router.put('/:cid/products/:pid', async (req, res) => {
     try {
-        let cid = req.params.cid;
-        let pid = req.params.pid;
+        let cid = req.params.cid
+        let pid = req.params.pid
         const newQuantity = parseInt(req.body.quantity)
         const cartToUpdate = await CartService.getCart(cid)
-        if (!cartToUpdate) { return res.status(404).json({ message: 'cart not found' }) }
-        if (typeof (newQuantity) !== 'number') { return res.status(400).json({ message: 'invalid quantity provided' }) }
-        if (ProductService.getOneProduct(pid).stock < newQuantity) { return res.status(409).json({ message: 'there is not enough stock' }) }
+        if (!cartToUpdate) {
+            const errorMessage = 'Cart not found'
+            return res.redirect(`/error?message=${encodeURIComponent(errorMessage)}`)
+        }
+        if (typeof (newQuantity) !== 'number') {
+            const errorMessage = 'Invalid quantity number'
+            return res.redirect(`/error?message=${encodeURIComponent(errorMessage)}`)
+        }
+        if (ProductService.getOneProduct(pid).stock < newQuantity) {
+            const errorMessage = 'There is not enough stock'
+            return res.redirect(`/error?message=${encodeURIComponent(errorMessage)}`)
+        }
         let updatedCart = await CartService.updateCartProductQuantity(cid, pid, newQuantity)
         if (!updatedCart) { return res.status(404).json({ message: 'product not found' }) }
         return res.status(200).json({ updatedCart })
     } catch (error) {
         console.error('an error occurred while trying to update the cart : ' + error)
-        return res.status(500).json({ message: 'server error:' + error })
+        return res.redirect(`/error?message=${encodeURIComponent(error)}`)
     }
 }
 )
@@ -151,13 +159,6 @@ router.post('/:cid/purchase',
                 return res.status(404).redirect('/error').json({ error: 'cart not found' })
             }
 
-            let stockResponse = await CartService.checkStock(cart)
-
-            if (stockResponse !== true) {
-                // modificar cart para cumplir la expectativa
-                return res.render('cartStockConflict', stockResponse)
-            }
-
             const { paymentIntent } = req.query
 
             const ticket = await TicketService.createTicket(cart, userEmail, paymentIntent)
@@ -180,6 +181,16 @@ router.post('/add-to-cart',
 
             const productId = req.body.productId
             const cartId = req.user.user.cartId._id
+
+            const stockResponse = await CartService.checkStock(cartId)
+
+            if (stockResponse != true) {
+                let errorMessage = 'There are products in your cart that dont meet the stock required by your order : \n'
+                stockResponse.forEach((conflictingProduct) => {
+                    errorMessage += `${conflictingProduct.product} - Cantidad disponible: ${conflictingProduct.quantityAvailable}\n`
+                })
+                return res.redirect(`/error?message=${encodeURIComponent(errorMessage)}`)
+            }
 
             await CartService.addProductToCart(cartId, productId)
             return res.status(200).json({ status: 'success' })

@@ -2,7 +2,7 @@
 
     {{#if auth}}
 
-        <a href="/cart" class="w-fit h-fit py-1">
+        <a href="/cart" class="w-fit h-fit py-3">
             <svg
                 class="align-center h-fit"
                 fill="#000000"
@@ -36,18 +36,18 @@
         </a>
 
         <a
-            class="font-semibold py-1 px-2 bg-gray-300"
+            class="inline-block bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded shadow-sm transition duration-300"
             href="/profile"
         >Profile</a>
         <a
-            class="font-semibold py-1 px-2 bg-gray-300"
+            class="inline-block bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded shadow-sm transition duration-300"
             href="/api/session/logout"
         >Logout</a>
     {{else}}
 
-        <a class="font-semibold py-1 px-2 bg-gray-300" href="/login">Login</a>
+        <a class="inline-block bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded shadow-sm transition duration-300" href="/login">Login</a>
         <a
-            class="font-semibold py-1 px-2 bg-gray-300"
+            class="inline-block bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded shadow-sm transition duration-300"
             href="/register"
         >Register</a>
 
